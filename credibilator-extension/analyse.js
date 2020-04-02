@@ -15,10 +15,10 @@ function unpackContainer(container){
 	let counter=0
 	//document.getElementById("features").innerHTML='';
 	for (let feature in container.stylometricFeatures){
-		document.getElementById("features").innerHTML+=(feature+": "+container.stylometricFeatures[feature]+"<br/>\n")
+		//document.getElementById("features").innerHTML+=(feature+": "+container.stylometricFeatures[feature]+"<br/>\n")
 		counter++;
 	}
-	//document.getElementById("features").innerHTML="Got "+counter+" of them.";
+	document.getElementById("features").innerHTML="Got "+counter+" of them.";
 	document.getElementById("textContent").innerHTML=container.textContent.replace(/\n/g,'<br />');
 	document.getElementById("loadmodelbutton").addEventListener("click", loadModelClick);
 	document.getElementById("processbutton").addEventListener("click", processClick);

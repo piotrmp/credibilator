@@ -1,8 +1,8 @@
 'use strict';
 
-chrome.tabs.executeScript({
-          file: 'contentScript.js'
-        });
+chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
+	chrome.tabs.executeScript({file: 'contentScript.js'})
+});
 
 let container;
 
