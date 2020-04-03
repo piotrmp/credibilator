@@ -4,6 +4,9 @@ chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
 	chrome.tabs.executeScript({file: 'contentScript.js'})
 });
 
+//chrome.tabs.executeScript({file: 'general/contentScript_HTML.js'});
+
+
 let container;
 
 // having received a message from tab...
