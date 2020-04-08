@@ -21,7 +21,7 @@ function buildDict(fileData) {
 		return null;
 	}
 	let result={}
-	let parts=fileData.split('\n');
+	let parts=fileData.split(/\r?\n/);
 	let i;
 	for (i =0;i<parts.length;++i){
 		result[parts[i]]=i
