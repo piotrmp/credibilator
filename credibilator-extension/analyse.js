@@ -1,12 +1,13 @@
 'use strict';
 
-// wait for the container message and unpack the contents
+// wait for the container message
 chrome.runtime.onMessage.addListener(
 	function listenOnce(message, sender, sendResponse) {
 		chrome.runtime.onMessage.removeListener(listenOnce)
 		unpackContainer(message)
 });
 
+// unpack the contents from the container sent by popup
 let globalContainer
 function unpackContainer(container){
 	globalContainer=container;
@@ -26,8 +27,9 @@ function unpackContainer(container){
 // Run the BiLSTMAvg classifier
 
 // Global vars
-let MAX_SEQUENCE_LENGTH=120
-let MAX_DOCUMENT_LENGTH=50
+let MAX_SEQUENCE_LENGTH=120;
+let MAX_DOCUMENT_LENGTH=50;
+let modelName='tfjs-small-interp-iter';
 
 // load the model
 let globalModel=null
@@ -41,9 +43,10 @@ async function loadModel(url,allcodes,allmasks){
 	}
 }
 
+// when clicked by user
 async function loadModelClick(){
 	document.getElementById("model").innerHTML="Loading..."
-	globalModel=await loadModel('./bilstmavg/data/tfjs-small-interp/model.json');
+	globalModel=await loadModel('./bilstmavg/data/'+modelName+'/model.json');
 	document.getElementById("model").innerHTML="Loaded."
 	document.getElementById("processbutton").disabled=false;
 }
@@ -54,7 +57,7 @@ async function processClick(){
 	let content=globalContainer.textContent;
 	globalTokenised=tokenise_bilstmavg(content);
 	document.getElementById("scored").innerHTML ="Scoring...";
-	readWordCodes("./bilstmavg/data/tfjs-small-interp/words.txt",handleWordCodes)
+	readWordCodes("./bilstmavg/data/"+modelName+"/words.txt",handleWordCodes)
 }
 
 // generate input vectors
@@ -101,23 +104,46 @@ function inputVectors(tokenised,wordCodes){
 	return([allcodes,allmasks,resultHTML])
 }
 
-// use the model it
-async function useModel(model,allcodes,allmasks){
-	try{
-		const prediction = model.predict([tf.tensor([allcodes]),tf.tensor([allmasks])]);
-		//let result=prediction.dataSync(); 
-		let result=[prediction[0].dataSync(), prediction[1].dataSync(), prediction[2].dataSync()];
-		return(result)
-	} catch (e) {
-		console.log(e);
+// use the model iteratively and store results in global var
+let globalResult=null;
+async function useModelIter(model,allcodes,allmasks,stepCallback,endCallback){
+	let sentLen=0
+	for (let i=0;i<allmasks.length;++i){
+		if (allmasks[i][0]!=0.0){
+			sentLen++;
+		}
 	}
+	globalResult=[[0.0,0.0],[],[]];
+	let i=0;
+	(function loop() {
+		try{
+			const prediction = model.predict(tf.tensor([allcodes[i]]));
+			let probs=Array.from(prediction[0].dataSync())
+			globalResult[1]=globalResult[1].concat(probs);
+			let vecs=Array.from(prediction[1].dataSync())
+			globalResult[2]=globalResult[2].concat(vecs);
+			globalResult[0][0]+=probs[0];
+			globalResult[0][1]+=probs[1];
+			stepCallback(i,sentLen);
+		} catch (e) {
+			console.log(e);
+		}
+		i++;
+		if (i<sentLen){
+			setTimeout(loop, 0);
+		}else{
+			globalResult[0][0]/=sentLen;
+			globalResult[0][1]/=sentLen;
+			endCallback(globalResult)
+		}
+	})();
 }
 
 // just for demo, to be replaced by super-fancy visualisation
 function showInterpretableNeural(tokenised,wordCodes,prediction){
-	console.log(prediction);
+	//console.log(prediction);
 	let sentenceScores=Array.from(prediction[1]);
-	console.log(sentenceScores);
+	//console.log(sentenceScores);
 	let sentenceCoords=Array.from(prediction[2]);
 	let resultHTML="";
 	let i=0;
@@ -143,25 +169,39 @@ function showInterpretableNeural(tokenised,wordCodes,prediction){
 		}
 		resultHTML+="<br/>\n";
 		i++;
-		if (i==MAX_DOCUMENT_LENGTH){
+		if (i*2==sentenceScores.length){
 			break;
 		}
 	}
 	document.getElementById("interpretation").innerHTML = resultHTML
 }
 
-// do the asynchronous processing and display the results
+
+// once word codes are available, trigger running the model
+let globalWordCodes;
 async function handleWordCodes(wordCodes){
-	let inputVectors1=inputVectors(globalTokenised,wordCodes)
+	globalWordCodes=wordCodes;
+	let inputVectors1=inputVectors(globalTokenised,globalWordCodes)
 	let allcodes=inputVectors1[0]
 	let allmasks=inputVectors1[1]
 	let resultHTML=inputVectors1[2]
-	let prediction=await useModel(globalModel,allcodes,allmasks);
+	useModelIter(globalModel,allcodes,allmasks,stepCallback,endCallback);
+}
+
+// once a step is finished, show progress
+function stepCallback(i,I){
+	let elem = document.getElementById("scored");
+	elem.innerHTML = (i*100.0/I).toFixed(0)+"%";
+	console.log("Scored "+i+" / "+I);
+}
+
+// once everything is finished, visualise
+function endCallback(prediction){
 	let overallScore=Array.from(prediction[0]);
 	let predR=overallScore[0];
 	let predF=overallScore[1];
 	document.getElementById("scored").innerHTML = "NONCREDIBLE: "+predF+"<br/>CREDIBLE: "+predR;
-	showInterpretableNeural(globalTokenised,wordCodes,prediction);
+	showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
 }
 
 
