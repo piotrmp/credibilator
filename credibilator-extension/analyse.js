@@ -29,7 +29,7 @@ function unpackContainer(container){
 // Global vars
 let MAX_SEQUENCE_LENGTH=120;
 let MAX_DOCUMENT_LENGTH=50;
-let modelName='tfjs-small-interp-iter';
+let modelName='tfjs-10k-interp-iter';
 
 // load the model
 let globalModel=null
