@@ -1,7 +1,7 @@
 'use strict';
 
-chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
-	chrome.tabs.executeScript({file: 'contentScript.js'})
+chrome.tabs.executeScript({
+          file: 'contentScript.js'
         });
 
 let container;
@@ -52,22 +52,11 @@ function score(content){
 	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible";
 	document.getElementById("whybutton").addEventListener("click", whyClick);
 	document.getElementById("whybutton").disabled=false
-    
-    
-	document.getElementById("visualWhyButton").addEventListener("click", visualWhyClick);
-	document.getElementById("visualWhyButton").disabled=false
 }
 
 // user clicked the button...
 function whyClick(){
 	// pass on the message to background script
-    container.buttonType = "nonVisual"
 	chrome.runtime.sendMessage(container,function(response) {});
 }
 
-// user clicked the button...
-function visualWhyClick(){
-	// pass on the message to background script
-    container.buttonType = "visual"
-	chrome.runtime.sendMessage(container,function(response) {});
-}

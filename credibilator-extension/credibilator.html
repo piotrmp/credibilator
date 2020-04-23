@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Credibilator</title>
+<!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"-->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<!--link rel="stylesheet" href="https://unpkg.com/@coreui/coreui/dist/css/coreui.min.css"-->
+<link rel="stylesheet" href="./viz/credibilator.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<!--script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> 
+<script src="https://unpkg.com/@coreui/coreui/dist/js/coreui.min.js"></script-->
+    <script src="bilstmavg/compromise.min.js"></script>
+	<script src="bilstmavg/tokeniser_bilstmavg.js"></script>
+	<script src="bilstmavg/wordencoder.js"></script>
+	<script src="bilstmavg/tfjs.js"></script>
+	<script src="bilstmavg/bilstmavg.js"></script>
+</head>
+<body>
+<!--div class="pull-right"><button type="button" id="settingsButton" class="btn btn-info" style="margin-right: 20px;"><span class="glyphicon glyphicon-cog"></span></button></div-->
+<div class="mainDiv">
+    <h1>Credibilator</h1>
+    
+    
+    <table style="width:100%">
+        <tr>
+            <td style="width:50%; vertical-align: top;padding:15px" id="leftColumn">
+                <div id="credibilityScore" >
+                </div>
+                <div class="custom-control custom-switch">
+                      <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
+                      <input type="checkbox" class="custom-control-input" disabled id="switchSentenceScore">
+                      <label class="custom-control-label" for="switchSentenceScore">Sentence-based score</label>
+                </div>
+                <div id = "modelMsg"></div>
+                <div id = "newsTitle"> </div>
+                <div id= "fullText" style="width: 500px;font-size:8pt;">
+                </div>
+            </td>
+            <td style="width:50%; vertical-align: top" id="rightColumn">
+                <div id="visOptions">
+                    <div class="[ form-group ]">
+                        <input type="checkbox" name="fancy-checkbox-style" id="fancy-checkbox-style" autocomplete="off" />
+                        <div class="[ btn-group ]">
+                            <label for="fancy-checkbox-style" class="[ btn btn-default ]">
+                                <span class="[ glyphicon glyphicon-ok ]"></span>
+                                <span> </span>
+                            </label>
+                            <label for="fancy-checkbox-style" class="[ btn btn-default active ]">
+                                Style
+                            </label>
+                        </div>
+                    </div>
+                    <div class="[ form-group ]">
+                        <input type="checkbox" name="fancy-checkbox-words" id="fancy-checkbox-words" autocomplete="off" />
+                        <div class="[ btn-group ]">
+                            <label for="fancy-checkbox-words" class="[ btn btn-default ]">
+                                <span class="[ glyphicon glyphicon-ok ]"></span>
+                                <span> </span>
+                            </label>
+                            <label for="fancy-checkbox-words" class="[ btn btn-default active ]">
+                                Words
+                            </label>
+                        </div>
+                    </div>
+                    <div class="[ form-group ]">
+                        <input type="checkbox" name="fancy-checkbox-sentences" id="fancy-checkbox-sentences" autocomplete="off" />
+                        <div class="[ btn-group ]">
+                            <label for="fancy-checkbox-sentences" class="[ btn btn-warning ]">
+                                <span class="[ glyphicon glyphicon-ok ]"></span>
+                                <span> </span>
+                            </label>
+                            <label for="fancy-checkbox-sentences" class="[ btn btn-default active ]">
+                                Sentences
+                            </label>
+                        </div>
+                    </div>
+                    <div class="[ form-group ]">
+                        <input type="checkbox" name="fancy-checkbox-document" id="fancy-checkbox-document" autocomplete="off" />
+                        <div class="[ btn-group ]">
+                            <label for="fancy-checkbox-document" class="[ btn btn-default ]">
+                                <span class="[ glyphicon glyphicon-ok ]"></span>
+                                <span> </span>
+                            </label>
+                            <label for="fancy-checkbox-document" class="[ btn btn-default active ]">
+                                Document
+                            </label>
+                        </div>
+                    </div>
+                    <div class="[ form-group ]">
+                        <input type="checkbox" name="fancy-checkbox-map" id="fancy-checkbox-map" autocomplete="off" />
+                        <div class="[ btn-group ]">
+                            <label for="fancy-checkbox-map" class="[ btn btn-default ]">
+                                <span class="[ glyphicon glyphicon-ok ]"></span>
+                                <span> </span>
+                            </label>
+                            <label for="fancy-checkbox-map" class="[ btn btn-default active ]">
+                                Map
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="visualizationStyle">
+                </div>
+                <div id="visualizationSentences" style="vertical-align:top;font-size:10pt">
+                </div>
+                <div id="visualizationDocuments" style="vertical-align:top;font-size:10pt">
+                </div>
+                <div id="visualizationMap" style="vertical-align:top;font-size:10pt">
+                </div>
+            </td>
+
+        </tr>
+    </table>
+</div>
+
+
+</body>
+<script src="./viz/backendConnector.js"></script>
+<script src="./viz/style.js"></script>
+<script src="./viz/sentences.js"></script>
+<script src="./viz/mainPanel.js"></script>
+<script src="./viz/fakelandmap.js"></script>
+<script src="./viz/main.js"></script>
+
+</html>  

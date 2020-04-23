@@ -1,15 +1,21 @@
   {
-    "name": "Credibilator",
-    "version": "0.1",
+    "name": "Credibilator-Vis",
+    "version": "1.0",
     "description": "Credibility assessment tool.",
-    "permissions": [
-	"activeTab"],
+    "permissions": ["https://cs.uns.edu.ar/","activeTab"],
     "background": {
       "scripts": ["background.js"],
       "persistent": false
     },
+    "icons": {
+        "48": "favicon.ico"
+    },
     "browser_action": {
+      "default_icon": {
+        "48": "favicon.ico"
+        },
       "default_popup": "popup.html"
     },
+    "content_security_policy": "script-src 'self' https://d3js.org https://stackpath.bootstrapcdn.com https://unpkg.com https://ajax.googleapis.com/ https://cs.uns.edu.ar; object-src 'self'",
     "manifest_version": 2
     }

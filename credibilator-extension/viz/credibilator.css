@@ -1,0 +1,99 @@
+/*text span style-----------------------------------*/
+span.wavy {
+    text-decoration: red underline wavy;
+}
+span.underlined {
+    text-decoration: underline ;
+}
+
+/*end text span style*/
+/*style barchart-----------------------------------*/
+.normalBar{
+    fill: steelblue;
+}
+
+.thisBar{
+    fill: orange;
+}
+
+.normalBar:hover {
+	fill: darkslateblue;
+}
+
+.thisBar:hover {
+	fill: darkorange;
+}
+/*end style barchart*/
+
+/*sentences style-----------------------------------*/
+.credibleSentenceSpan{
+    color: green;
+}
+.nonCredibleSentenceSpan{
+    color: red;
+}
+.credibleSourceSpan{
+    color: green;
+    float: right;
+}
+.nonCredibleSourceSpan{
+    color: red;
+    float: right;
+}
+
+.sentenceTitleDiv{
+    font-size: x-large;
+    width: 50%;
+    margin: 0 auto;
+    padding-bottom: 10px;
+}
+
+.sentenceSubTitleDiv{
+    padding-bottom: 9px;
+    font-style: italic;
+}
+.sentenceDiv{
+    padding-bottom: 10px;
+    cursor:pointer;
+}
+/*end sentences style*/
+
+/* fakelandmap-----------------------------------*/
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+/* end fakelandmap*/
+
+/*checkboxes-----------------------------------*/
+
+.form-group input[type="checkbox"] {
+    display: none;
+}
+
+.form-group input[type="checkbox"] + .btn-group > label span {
+    width: 20px;
+}
+
+.form-group input[type="checkbox"] + .btn-group > label span:first-child {
+    display: none;
+}
+.form-group input[type="checkbox"] + .btn-group > label span:last-child {
+    display: inline-block;   
+}
+
+.form-group input[type="checkbox"]:checked + .btn-group > label span:first-child {
+    display: inline-block;
+}
+.form-group input[type="checkbox"]:checked + .btn-group > label span:last-child {
+    display: none;   
+}
+
+/*end checkboxes*/
