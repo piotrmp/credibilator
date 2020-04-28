@@ -1,18 +1,19 @@
 
 // extract features
-function generateFeatures(tagged,verbose){
-	let resultHTML=""
-	let sentencesNo=0
-	let wordsNo=0
-	let charsNo=0
-	let casedNo=[0,0,0,0]
-	let dictWordsNo=0
-	let categoryWordsNo={}
-	let tagNgramsNo={}
+function generateFeatures(tagged){
+	let sentencesNo=0;
+	let wordsNo=0;
+	let charsNo=0;
+	let casedNo=[0,0,0,0];
+	let dictWordsNo=0;
+	let categoryWordsNo={};
+	let tagNgramsNo={};
+	let interpAll=[];
 	for (sentence of tagged){
 		sentencesNo++;
 		let prevTag=null
 		let prevprevTag=null
+		let interpSen=[];
 		for (item of sentence){
 			// basic counter features
 			wordsNo++;
@@ -20,6 +21,9 @@ function generateFeatures(tagged,verbose){
 			lemmas=lemmatizer.only_lemmas(item[1])
 			tags=item[2]
 			charsNo+=token.length
+			// interpret features
+			let interpDict=[];
+			let interpPOS=[];
 			// casing features
 			if (tags!=null && token.length>1){
 				casing=getCasing(token,tags);
@@ -34,6 +38,7 @@ function generateFeatures(tagged,verbose){
 					for (category of dictCategories){
 						allDictCategories.add(category)
 					}
+					interpDict.push([lemma,dictCategories]);
 				}
 			}
 			if (allDictCategories.size>0){
@@ -43,23 +48,25 @@ function generateFeatures(tagged,verbose){
 				increment(categoryWordsNo,category);
 			}							
 			// tag features
-			let thisTag=getPOSTag(tags)
-			increment(tagNgramsNo,thisTag)
+			let thisTag=getPOSTag(tags);
+			increment(tagNgramsNo,thisTag);
+			interpPOS.push(thisTag);
 			if (prevTag!=null){
-				increment(tagNgramsNo,prevTag+"_"+thisTag)
+				let fID=prevTag+"_"+thisTag;
+				increment(tagNgramsNo,fID)
+				interpPOS.push(fID)
 				if (prevprevTag!=null){
-					increment(tagNgramsNo,prevprevTag+"_"+prevTag+"_"+thisTag)
+					let fID=prevprevTag+"_"+prevTag+"_"+thisTag;
+					increment(tagNgramsNo,fID);
+					interpPOS.push(fID)
 				}
 			}
-			prevprevTag=prevTag
-			prevTag=thisTag
-			if (verbose){
-				resultHTML=resultHTML+token+" -- "+lemmas+" -- "+tags+"=>"+thisTag+"<br/>\n";
-			}
+			// bookkeeping
+			prevprevTag=prevTag;
+			prevTag=thisTag;
+			interpSen.push([item[0],item[3],interpDict,interpPOS]);
 		}
-		if (verbose){
-			resultHTML=resultHTML+"<hr/>\n";
-		}
+		interpAll.push(interpSen);
 	}
 	let resultFeatures={}
 	resultFeatures["sentences"]=sentencesNo;
@@ -89,7 +96,7 @@ function generateFeatures(tagged,verbose){
 	for (tagNgram in tagNgramsNo){
 		resultFeatures["TAG_"+tagNgram]=tagNgramsNo[tagNgram]/wordsNo;
 	}
-	return([resultFeatures,resultHTML])
+	return([resultFeatures,interpAll])
 }
 
 function increment(dict,value){

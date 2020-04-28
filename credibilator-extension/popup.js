@@ -37,18 +37,19 @@ function handleGLMDict(){
 
 // Process given text
 function score(content){
-	let verbose=true;
-	console.log("Tagging...")
+	console.log("Tagging...");
 	let tagged=tag(content);
-	console.log("Generating features...")
-	let result=generateFeatures(tagged,verbose)
-	let features=result[0]	
-	console.log("Scoring...")
+	console.log("Generating features...");
+	let result=generateFeatures(tagged);
+	let features=result[0];
+	let interpretation=result[1];
+	console.log("Scoring...");
 	let score=scoreGLM(features);
-	console.log("Done.")
+	console.log("Done.");
 	let hrScore=((1-score)*100).toFixed(2);
 	container['stylometricScore']=score;
 	container['stylometricFeatures']=features;
+	container['stylometricInterpretation']=interpretation;
 	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible";
 	document.getElementById("whybutton").addEventListener("click", whyClick);
 	document.getElementById("whybutton").disabled=false
@@ -61,13 +62,13 @@ function score(content){
 // user clicked the button...
 function whyClick(){
 	// pass on the message to background script
-    container.buttonType = "nonVisual"
+	container.buttonType = "nonVisual"
 	chrome.runtime.sendMessage(container,function(response) {});
 }
 
 // user clicked the button...
 function visualWhyClick(){
 	// pass on the message to background script
-    container.buttonType = "visual"
+	container.buttonType = "visual"
 	chrome.runtime.sendMessage(container,function(response) {});
 }

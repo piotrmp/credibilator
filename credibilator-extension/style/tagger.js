@@ -11,19 +11,16 @@ const tagCompromise = function(doc) {
 			let pre = t.pre.trim()
 			let tags=Object.keys(t.tags);
 			let reduced=t.reduced;
-			// What if text is null?
-			// What if t.implicit exists?
-			// check the example of "wasn't"
 			let text = t.text.trim()
 			let post = t.post.trim()
 			if (pre.length!=0){
-				termsTagged.push([pre,pre,null])
+				termsTagged.push([pre,pre,null,-1])
 			}
 			if (text.length!=0){
-				termsTagged.push([text,reduced,tags])
+				termsTagged.push([text,reduced,tags,0])
 			}
 			if (post.length!=0){
-				termsTagged.push([post,post,null])
+				termsTagged.push([post,post,null,1])
 			}
 		})
 		//console.log(termsPlain)

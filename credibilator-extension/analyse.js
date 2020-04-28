@@ -22,6 +22,124 @@ function unpackContainer(container){
 	document.getElementById("textContent").innerHTML=container.textContent.replace(/\n/g,'<br />');
 	document.getElementById("loadmodelbutton").addEventListener("click", loadModelClick);
 	document.getElementById("processbutton").addEventListener("click", processClick);
+	document.getElementById("interpretbutton").disabled=false;
+	document.getElementById("interpretbutton").addEventListener("click", interpretClick);
+}
+
+// Style interpretation requested by user
+async function interpretClick(){
+	loadGLMDict('./style/data/features.tsv',showInterp) 
+}
+
+
+async function showInterp(glmDict){
+	let IMPACT_THRS_TAG=50;
+	let IMPACT_THRS_DICT=20;
+	let IMPACT_THRS_CAT=5;
+	let html="<strong>DICT</strong><br/>";
+	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
+		let sentence=globalContainer.stylometricInterpretation[iS];
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let putSpace=true;
+			if (html=="" || (iT>0 && sentence[iT-1][1]==-1) || token[1]==1){
+				putSpace=false;
+			}
+			let impactSum=0;
+			for (let iL=0;iL<token[2].length;++iL){
+				let lemma=token[2][iL][0];
+				let categories=token[2][iL][1];
+				for (let cat of categories){
+					cat="catGI"+cat;
+					if (cat in glmDict){
+						impactSum+=glmDict[cat];
+					}
+				}
+			}
+			//console.log(impactSum);
+			if (putSpace){
+				html+=" ";
+			}
+			let impactReason="";
+			if (impactSum>IMPACT_THRS_DICT || impactSum<-IMPACT_THRS_DICT){
+				for (let iL=0;iL<token[2].length;++iL){
+					let cats=[]
+					for (let cat of token[2][iL][1]){
+						let cat0=cat;
+						cat="catGI"+cat;
+						if (cat in glmDict && (glmDict[cat]>IMPACT_THRS_CAT || glmDict[cat]<-IMPACT_THRS_CAT)){
+							cats.push(cat0)
+						}
+					}
+					if (cats.length==0){
+						continue;
+					}
+					let msg=token[2][iL][0]+"&rarr;"+cats.join(", ");
+					if (impactReason!=""){
+						impactReason+=" ";
+					}
+					impactReason+=msg;
+				}
+			}
+			if (impactSum>IMPACT_THRS_DICT){
+				html+="<span title=\""+impactReason+"\" style=\"background-color:yellow\">"+token[0]+"</span>";
+			}else if (impactSum<-IMPACT_THRS_DICT){
+				html+="<span title=\""+impactReason+"\" style=\"background-color:aqua\">"+token[0]+"</span>";
+			}else{
+				html+=token[0];
+			}
+		}
+		html+="<br/>"
+	}
+	html+="<strong>TAG</strong><br/>";
+	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
+		let sentence=globalContainer.stylometricInterpretation[iS];
+		let symbols=[];
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let symbol="";
+			for (let tag of token[3]){
+				let tag2="TAG_"+tag;
+				if (tag2 in glmDict && (glmDict[tag2]>IMPACT_THRS_TAG || glmDict[tag2]<-IMPACT_THRS_TAG)){
+					let tagLen=(tag.match(/_/g) || []).length+1;
+					symbol=tag
+					if (tagLen>=2){
+						symbols[iT-1]=tag
+						if (tagLen>=3){
+							symbols[iT-2]=tag
+						}
+					}
+				}
+			}
+			symbols.push(symbol);
+		}
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let putSpace=true;
+			if (html=="" || (iT>0 && sentence[iT-1][1]==-1) || token[1]==1){
+				putSpace=false;
+			}
+			if (putSpace){
+				html+=" ";
+			}
+			let prefix="";
+			let suffix="";
+			if (symbols[iT]!="" && (iT==0||symbols[iT]!=symbols[iT-1])){
+				let color="aqua";
+				if (glmDict["TAG_"+symbols[iT]]>0){
+					color="yellow";
+				}
+				prefix="<span title=\""+symbols[iT]+"\" style=\"background-color:"+color+"\">"
+			}
+			if (symbols[iT]!="" && (iT==(sentence.length-1)||symbols[iT]!=symbols[iT+1])){
+				suffix="</span>"
+			}
+			html+=prefix+token[0]+suffix;
+		}
+		html+="<br/>"
+	}
+
+	document.getElementById("interpretationStyle").innerHTML=html;
 }
 
 // Run the BiLSTMAvg classifier
@@ -173,7 +291,7 @@ function showInterpretableNeural(tokenised,wordCodes,prediction){
 			break;
 		}
 	}
-	document.getElementById("interpretation").innerHTML = resultHTML
+	document.getElementById("interpretationNeural").innerHTML = resultHTML
 }
 
 
