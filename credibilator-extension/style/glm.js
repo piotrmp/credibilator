@@ -26,6 +26,35 @@ function buildGLMDict(fileData) {
 	return(result)
 }
 
+function loadGLMDictMean(path,callback){
+	doGET(path, callback,buildGLMDictMean);
+}
+
+function buildGLMDictMean(fileData) {
+	if (!fileData) {
+		return null;
+	}
+	let result={};
+	let resultMean={};
+	let lines=fileData.split('\n');
+	let line;
+	for (line of lines){
+		if (line==""){
+			continue;
+		}
+		let parts=line.split('\t')
+		let feature=parts[0];
+		let coef=parseFloat(parts[1]);
+		let mean=parseFloat(parts[3]);
+		//console.log(feature)
+		//console.log(coef)
+		result[feature]=coef
+		resultMean[feature]=mean
+	}
+	result=[result,resultMean]
+	return(result)
+}
+
 function scoreGLM(features){
 	let sum=glmDict['<INTERCEPT>'];
 	let feature;

@@ -28,11 +28,85 @@ function unpackContainer(container){
 
 // Style interpretation requested by user
 async function interpretClick(){
-	loadGLMDict('./style/data/features.tsv',showInterp) 
+	loadGLMDictMean('./style/data/features.tsv',showInterp) 
 }
 
 
-async function showInterp(glmDict){
+async function showInterp(result){
+	let glmDict=result[0];
+	let meanDict=result[1];
+	let html="";
+	html+=showLogistic(glmDict,meanDict);
+	html+=showHighlights(glmDict);
+	document.getElementById("interpretationStyle").innerHTML=html;
+}
+
+function showLogistic(glmDict,meanDict){
+	let html="<strong>SUM</strong><br/>\n";
+	let features=[];
+	let impacts={};
+	let intercept=glmDict["<INTERCEPT>"];
+	for (let feature in glmDict){
+		if (feature=="<INTERCEPT>"){
+			continue;
+		}
+		let featureVal=0;
+		if (feature in globalContainer.stylometricFeatures){
+			featureVal=globalContainer.stylometricFeatures[feature];
+		}
+		//if (feature.startsWith("mean")){
+			featureVal-=meanDict[feature];
+			intercept+=meanDict[feature]*glmDict[feature];
+		//}
+		features.push(feature)
+		impacts[feature]=featureVal*glmDict[feature];
+		if (feature=="TAG_?_Value_Noun"){
+			console.log(meanDict[feature])
+			console.log(glmDict[feature])
+			console.log(globalContainer.stylometricFeatures[feature])
+		}
+	}
+	features.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+	let chartData=[];
+	chartData.push({label:"INTERCEPT",y:-intercept});
+	for (let feature of features.slice(0,9)){
+		if (impacts[feature]>0){
+			chartData.push({label:feature,y:-impacts[feature]});
+		}
+	}
+	for (let feature of features.slice(0,9)){
+		if (impacts[feature]<0){
+			chartData.push({label:feature,y:-impacts[feature]});
+		}
+	}
+	var chart = new CanvasJS.Chart("chartContainer", {
+	theme: "light1", // "light1", "ligh2", "dark1", "dark2"
+	animationEnabled: true,
+	title: {
+		text: "Feature contribution"
+	},
+	axisY: {
+		title: "Crediblity",
+		prefix: "",
+		lineThickness: 0,
+		suffix: ""
+	},
+	data: [{
+		type: "waterfall",
+		indexLabel: "{y}",
+		indexLabelFontColor: "#EEEEEE",
+		indexLabelPlacement: "inside",
+		yValueFormatString: "0.##",
+		risingColor:"blue",
+		fallingColor:"gold",
+		dataPoints: chartData
+	}]
+	});
+	chart.render();
+	return(html);
+}
+
+function showHighlights(glmDict){
 	let IMPACT_THRS_TAG=50;
 	let IMPACT_THRS_DICT=20;
 	let IMPACT_THRS_CAT=5;
@@ -139,7 +213,7 @@ async function showInterp(glmDict){
 		html+="<br/>"
 	}
 
-	document.getElementById("interpretationStyle").innerHTML=html;
+	return(html);
 }
 
 // Run the BiLSTMAvg classifier
