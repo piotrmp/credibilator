@@ -68,7 +68,6 @@ function showLogistic(glmDict,meanDict){
 	}
 	features.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
 	let chartData=[];
-	chartData.push({label:"INTERCEPT",y:-intercept});
 	for (let feature of features.slice(0,9)){
 		if (impacts[feature]>0){
 			chartData.push({label:feature,y:-impacts[feature]});
@@ -79,6 +78,12 @@ function showLogistic(glmDict,meanDict){
 			chartData.push({label:feature,y:-impacts[feature]});
 		}
 	}
+	let remainder=intercept;
+	for (let feature of features.slice(9)){
+		remainder+=impacts[feature];
+	}
+	chartData.push({label:"OTHER",y:-remainder});
+	
 	var chart = new CanvasJS.Chart("chartContainer", {
 	theme: "light1", // "light1", "ligh2", "dark1", "dark2"
 	animationEnabled: true,
