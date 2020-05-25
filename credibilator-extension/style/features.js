@@ -107,13 +107,12 @@ function increment(dict,value){
 }
 
 function getCasing(token,tags){
-	if (tags.includes("Acronym")){
-		return 1;
-	}else if (tags.includes("TitleCase")){
-		// doesn't work for the first word in document
-		return 2;
-	}else if (token.toLowerCase()==token){
+	if (token.toLowerCase()==token){
 		return 0;
+	}else if (token.toUpperCase()==token){
+		return 1;
+	}else if (token.substring(1).toLowerCase()==token.substring(1)){
+		return 2;
 	}else{
 		return 3;
 	}
