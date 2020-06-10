@@ -15,10 +15,10 @@ function unpackContainer(container){
 	document.getElementById("stylometricScore").innerHTML=container.stylometricScore
 	let counter=0
 	for (let feature in container.stylometricFeatures){
-		//document.getElementById("features").innerHTML+=(feature+": "+container.stylometricFeatures[feature]+"<br/>\n")
+		//document.getElementById("features").innerHTML+=(featureDescription(feature)+" ["+feature+"]<br/>\n")
 		counter++;
 	}
-	document.getElementById("features").innerHTML="Got "+counter+" of them.";
+	//document.getElementById("features").innerHTML="Got "+counter+" of them.";
 	document.getElementById("textContent").innerHTML=container.textContent.replace(/\n/g,'<br />');
 	document.getElementById("loadmodelbutton").addEventListener("click", loadModelClick);
 	document.getElementById("processbutton").addEventListener("click", processClick);
@@ -146,18 +146,20 @@ function showHighlights(glmDict){
 					for (let cat of token[2][iL][1]){
 						let cat0=cat;
 						cat="catGI"+cat;
-						if (cat in glmDict && (glmDict[cat]>IMPACT_THRS_CAT || glmDict[cat]<-IMPACT_THRS_CAT)){
+						if (cat in glmDict && (glmDict[cat]>IMPACT_THRS_CAT || glmDict[cat]<-IMPACT_THRS_CAT) && glmDict[cat]*impactSum>0){
 							cats.push(cat0)
 						}
 					}
 					if (cats.length==0){
 						continue;
 					}
-					let msg=token[2][iL][0]+"&rarr;"+cats.join(", ");
-					if (impactReason!=""){
-						impactReason+=" ";
+					for (let cat of cats){
+						let msg=token[2][iL][0]+"&rarr;"+featureDescription("catGI"+cat);
+						if (impactReason!=""){
+							impactReason+="&#10;";
+						}
+						impactReason+=msg;
 					}
-					impactReason+=msg;
 				}
 			}
 			if (impactSum>IMPACT_THRS_DICT){
@@ -208,7 +210,7 @@ function showHighlights(glmDict){
 				if (glmDict["TAG_"+symbols[iT]]>0){
 					color="yellow";
 				}
-				prefix="<span title=\""+symbols[iT]+"\" style=\"background-color:"+color+"\">"
+				prefix="<span title=\""+featureDescription("TAG_"+symbols[iT])+"\" style=\"background-color:"+color+"\">"
 			}
 			if (symbols[iT]!="" && (iT==(sentence.length-1)||symbols[iT]!=symbols[iT+1])){
 				suffix="</span>"
