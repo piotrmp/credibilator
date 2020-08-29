@@ -12,7 +12,16 @@
         
         
         //get data asap
-        this.getData("random",5000,null);
+        this.getData("random",500,null);
+        
+        this.typeOfMap = "sentence";
+        if (this.typeOfMap == "sentence"){
+            this.dataId = "sentenceId";
+        }
+        else{
+            this.dataId = "docId";
+        }
+            
     }
     
     
@@ -157,15 +166,19 @@
             var s = d3.event.selection;
             if (!s) {
                 if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+                mapPanelObj.removeZoomedData();
                 mapPanelObj.x.domain(d3.extent(data, function (d) { return d.projection[0]; })).nice();
                 mapPanelObj.y.domain(d3.extent(data, function (d) { return d.projection[0]; })).nice();
+                zoom();
             } else {
                 
                 mapPanelObj.x.domain([s[0][0], s[1][0]].map(mapPanelObj.x.invert, mapPanelObj.x));
                 mapPanelObj.y.domain([s[1][1], s[0][1]].map(mapPanelObj.y.invert, mapPanelObj.y));
                 scatter.select(".brush").call(brush.move, null);
+                zoom();
+                sampleData();
             }
-            zoom();
+            
         }
 
         function idled() {
@@ -182,24 +195,32 @@
             scatter.selectAll("circle").transition(t)
             .attr("cx", function (d) { return mapPanelObj.x(d.projection[0]); })
             .attr("cy", function (d) { return mapPanelObj.y(d.projection[1]); });
+        }
+        function sampleData(){
             
-            dataToPass = {"sampling": "random" , "nSamples": 5000, "range":[[mapPanelObj.x.domain()[0],mapPanelObj.y.domain()[0]],[mapPanelObj.x.domain()[1],mapPanelObj.y.domain()[1]]]};
+            dataToPass = {"sampling": "random" , "nSamples": 500, "range":[[mapPanelObj.x.domain()[0],mapPanelObj.y.domain()[0]],[mapPanelObj.x.domain()[1],mapPanelObj.y.domain()[1]]]};
             thisObj.backendObj.backendCall(thisObj.backendObj.fakelandDataURL,dataToPass,thisObj.backendObj.returnZoomedData);
         }
 
     
     }
     
-    mapPanel.prototype.drawZoomedData = function(zoomData){
-        
-        zoomData.filter(function(d){
-            return mapPanelObj.data.includes(d.docId);
-        })
+    mapPanel.prototype.removeZoomedData = function(){
+        d3.select("#scatterplot").selectAll(".zoomedDots")
+        .remove();
+    }
+    
+    mapPanel.prototype.drawZoomedData = function(origZoomData){
+        thisObject = this;
+        var zoomData = origZoomData.filter(function(d){
+            return !(mapPanelObj.data.includes(d[thisObject.dataId]));
+        });
         
         var div = d3.select(".tooltip");
         d3.select("#scatterplot").selectAll(".zoomedDots")
-            .data(zoomData)
+            .data(zoomData,function(d){return d[this.dataId]})
             .enter().append("circle")
+            .attr("class","zoomedDots")
             .attr("fill", function (d){
                 return mapPanelObj.sentenceCredibleColors(d.predictedSentence);
                 //return "black"
@@ -261,10 +282,14 @@
         
     }
     
-    mapPanel.prototype.showNeighbors = function(indexNeighbors){
+    mapPanel.prototype.showNeighbors = function(data){
+        var thisObject = this;
+        var indexNeighbors = data.map(x => x[thisObject.dataId]);
+        
+        var thisObject = this;
         d3.select(this.container).selectAll("circle")
         .select(function(d,i){
-            if (indexNeighbors.includes(i)){
+            if (indexNeighbors.includes(d[thisObject.dataId])){
                 return this
             }
             else{
@@ -282,16 +307,18 @@
         
         d3.select(this.container).selectAll("circle")        
         .attr("r", 4)
-        .attr("stroke", "black")
-        .attr("stroke-width", "0px")
         .attr("fill", function (d){
-                if (d.label=="credible"){
-                    return thisObj.credibleColor
-                }
-                else{
-                    return thisObj.nonCredibleColor
-                }
-            });
+                return mapPanelObj.sentenceCredibleColors(d.predictedSentence);
+            })
+        .attr("stroke", function (d){
+            if (d.documentLabel<=0.5){
+                return thisObj.credibleColor
+            }
+            else{
+                return thisObj.nonCredibleColor
+            }
+        })
+        .attr("stroke-width", "2px");
     }
     mapPanel.prototype.resetNeighbors = function(indexNeighbors){
         var thisObj = this;
@@ -306,8 +333,15 @@
             }
         })
         .attr("r", 4)
-        .attr("stroke", "black")
-        .attr("stroke-width", "0px")
+        .attr("stroke", function (d){
+                if (d.documentLabel<=0.5){
+                    return thisObj.credibleColor
+                }
+                else{
+                    return thisObj.nonCredibleColor
+                }
+            })
+        .attr("stroke-width", "2px")
         .attr("fill", function (d){
                 if (d.label=="credible"){
                     return thisObj.credibleColor

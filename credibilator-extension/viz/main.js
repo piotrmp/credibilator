@@ -174,7 +174,7 @@ async function useModelIter(model,allcodes,allmasks,stepCallback,endCallback){
 			globalResult[2]=globalResult[2].concat(vecs);
 			globalResult[0][0]+=probs[0];
 			globalResult[0][1]+=probs[1];
-			stepCallback(i,sentLen, probs);
+			stepCallback(i,sentLen, probs,vecs);
 		} catch (e) {
 			console.log(e);
 		}
@@ -227,9 +227,10 @@ async function handleWordCodes(wordCodes){
     mp.setMapObject(mapPanel);
 }
 
-function stepCallback(i,I,probs){
+function stepCallback(i,I,probs,vecs){
 	console.log("Scored "+i+" / "+I + ": " + probs[1]);
     listOfSentences[i]["score"] = probs[1];
+    listOfSentences[i]["origVector"] = vecs;
     if (i<I-1){
         listOfSentences[i+1]["class"] = "wavy";
     }
@@ -240,6 +241,7 @@ function stepCallback(i,I,probs){
 // once everything is finished, visualise
 function endCallback(prediction){
     $("#switchSentenceScore").removeAttr("disabled");
+    $("#switchMachineView").removeAttr("disabled");
     
     //listOfSentences[listOfSentences.length-1]["class"] = "normal";
     mp.setText(listOfSentences);
@@ -249,6 +251,7 @@ function endCallback(prediction){
 	//document.getElementById("scored").innerHTML = "NONCREDIBLE: "+predF+"<br/>CREDIBLE: "+predR;    
     mp.setSentenceConfidence(predR);
 	showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
+    mp.setText(listOfSentences);
 }
 
 
@@ -275,21 +278,25 @@ function showInterpretableNeural(tokenised,wordCodes,prediction){
     console.log(tokenised);
 	for (let sentence of tokenised){
 		let j=0
-		resultHTML+="<b>";
+		sentenceHTML="";
 		for (let token of sentence){
 			let word='[UNK]'
-			if (token in wordCodes){
+			if ((token in wordCodes)&&(j<MAX_SEQUENCE_LENGTH)){
 				word=token
 			}
-			resultHTML=resultHTML+word+" ";
+            else{
+                word='<span class="UNK">'+token+'</span>'
+            }
+			sentenceHTML=sentenceHTML+word+" ";
 			j=j+1;
-			if (j==MAX_SEQUENCE_LENGTH){
-				break;
-			}
+			//if (j==MAX_SEQUENCE_LENGTH){
+			//	break;
+			//}
 		}
         console.log(i*2+1);
         console.log(sentenceScores[i*2+1]);
         listOfSentences[i]["score"] = sentenceScores[i*2+1];
+        listOfSentences[i]["html"] = sentenceHTML;
         i++;
 		/*resultHTML+="</b><br/>\n";
 		resultHTML+="F: "+sentenceScores[i*2+1].toFixed(2)+" R: "+sentenceScores[i*2+0].toFixed(2);

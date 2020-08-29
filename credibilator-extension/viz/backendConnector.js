@@ -1,8 +1,6 @@
 (function (window, undefined) {
 
     var backendConnector = function(){
-        //This is with dodgy port 5000 and hardcoded
-        
         
         
         //These are the URLs with port 80
@@ -12,6 +10,7 @@
         
         //this.fakelandDataURL = 'http://192.168.12.18:5000/getData'; 
         this.fakelandDataURL = this.hostName + wsgiSuffix +'/getData'; 
+        this.fakelandDataURLkNeigh = this.hostName + wsgiSuffix +'/getANN'; 
         
     }
     
@@ -40,7 +39,6 @@
 //console.log(data)
         mapPanelObj.setHeaderAndMap(data["docs_found"],"#visualizationMap",mapPanel)
         
-        
         //let the interface know that the search results are ready
         //intObj.showElasticsearchResultsOnScreen(data);
     }
@@ -50,6 +48,19 @@
 //console.log(data)
         mapPanelObj.drawZoomedData(data["docs_found"])
         
+        //let the interface know that the search results are ready
+        //intObj.showElasticsearchResultsOnScreen(data);
+    }
+    
+    //this is used after the user decides to retrieve k closest sentences
+    backendConnector.prototype.returnKNeighbors = function (data){
+    
+//console.log(data)
+        //add k neighbors if not present
+        mapPanelObj.drawZoomedData(data["docs_found"]);
+        
+        //highlight k neighbors
+        mapPanelObj.showNeighbors(data["docs_found"]);
         
         //let the interface know that the search results are ready
         //intObj.showElasticsearchResultsOnScreen(data);

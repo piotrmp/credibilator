@@ -18,9 +18,14 @@
         this.scaleNonCredibleTextHighlightColor = d3.scaleLinear().domain([0,1]).range(["white","red"]);
         
         this.currentConfidence = "document";
+        this.currentView = "human";
             
         $('#switchSentenceScore').on('change', function (event) {      thisObject.switchConfidence();
         }); 
+        $('#switchMachineView').on('change', function (event) {      thisObject.switchMachineView();
+        }); 
+        
+        this.neighborsToRetrieve = 10;
     }
     
     mainPanel.prototype.setSentenceConfidence = function(value){
@@ -42,6 +47,25 @@
         }
     }
     
+    mainPanel.prototype.switchMachineView = function(){
+        if (this.currentView=="machine"){
+            this.currentView="human";
+            this.setHumanView();
+        }
+        else{
+            this.currentView = "machine";
+            this.setMachineView();
+        }
+    }
+    
+    
+    mainPanel.prototype.setMachineView = function(){
+        d3.selectAll(".UNK").style("color","transparent").style("text-shadow","0 0 8px #000");
+    }
+    mainPanel.prototype.setHumanView = function(){
+        d3.selectAll(".UNK").style("color","black").style("text-shadow","None");
+    }
+        
     mainPanel.prototype.changeCredibleBar = function(){
         
     }
@@ -68,8 +92,14 @@
         .style("background-color",function(d){
             return thisObject.scaleNonCredibleTextHighlightColor(d.score);
         })
-        .text(function(d){
-            return d.text;})
+        .html(function(d){
+            if (d.html!=null){
+                return d.html;
+            }
+            else{
+                return d.text;
+            }
+        })
         .on("mouseover", function(d,i){
             //reset any previous hovering
             //thisObject.mapObject.resetAllNeighbors();
@@ -80,11 +110,17 @@
             $(this).css({"outline": "1px solid blue", "padding" : ".2em .4em"});
         })
         .on("mouseout", function(d,i){            
-        });
+        })
+        .on("mousedown",function(d,i){
+            mp.getkNN(d,mp.neighborsToRetrieve)
+        })
+        ;
     }
     
     mainPanel.prototype.getkNN = function(datum, k){
-        return [getRandomInt(300), getRandomInt(300), getRandomInt(300)];
+        mapPanelObj.resetAllNeighbors();
+        dataToPass = {"n": k , "query": datum.origVector};
+        bec.backendCall(bec.fakelandDataURLkNeigh,dataToPass,bec.returnKNeighbors);
     }
     mainPanel.prototype.setCredibleBar = function(score){
         var topOfOutline = 10;
