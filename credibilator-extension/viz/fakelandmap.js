@@ -54,14 +54,20 @@
         this.y = d3.scaleLinear().range([height, 0]);
         
         //set domain for scales
-        var xExtent = d3.extent(data, function (d) { return d.projection[0]; });
-        var yExtent = d3.extent(data, function (d) { return d.projection[1]; });
-        //to avoid points at the edge of the graph
-        xExtent[0] = xExtent[0] -10; xExtent[1] = xExtent[1] + 10;
-        yExtent[0] = yExtent[0] -10; yExtent[1] = yExtent[1] + 10;
+        //this.xExtent = d3.extent(data, function (d) { return d.projection[0]; });
+        //this.yExtent = d3.extent(data, function (d) { return d.projection[1]; });
         
-        this.x.domain(xExtent);//.nice();
-        this.y.domain(yExtent);//.nice();
+        
+        //to avoid points at the edge of the graph
+        //xExtent[0] = xExtent[0] -10; xExtent[1] = xExtent[1] + 10;
+        //yExtent[0] = yExtent[0] -10; yExtent[1] = yExtent[1] + 10;
+        
+        //Hardcoding this as otherwise it requires to do a full swipe on the data, plus mongo type forces the data to be as lat and long
+        this.xExtent = [-100,100];
+        this.yExtent = [-190,190];
+        
+        this.x.domain(this.xExtent);//.nice();
+        this.y.domain(this.yExtent);//.nice();
         
         this.sentenceCredibleColors = d3.scaleLinear()
                                        .domain([0, 0.5, 1])
@@ -167,8 +173,8 @@
             if (!s) {
                 if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
                 mapPanelObj.removeZoomedData();
-                mapPanelObj.x.domain(d3.extent(data, function (d) { return d.projection[0]; })).nice();
-                mapPanelObj.y.domain(d3.extent(data, function (d) { return d.projection[0]; })).nice();
+                mapPanelObj.x.domain(mapPanelObj.xExtent).nice();
+                mapPanelObj.y.domain(mapPanelObj.yExtent).nice();
                 zoom();
             } else {
                 
@@ -250,6 +256,9 @@
                 div.transition()		
                     .duration(500)		
                     .style("opacity", 0);	
+            })
+            .on("mousedown", function(d){
+                window.open(d.url,'_blank');
             });
     }
     
