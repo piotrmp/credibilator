@@ -106,14 +106,14 @@ def indexEverything():
     engine = Engine(dimension, lshashes=[rbp])
 
     #extract ids from the 500k sentences
-    with open('../data/red500k50p.ssv','r') as redFile:
+    with open('../data/redU500k50p.ssv','r') as redFile:
         count = 0
         index = []
         for line in redFile:
             index.append(int(float(line.rstrip().split(' ')[0])))
 
     # Index vectors (set their data to a unique string)
-    with open('../data/origdim.ssv','r') as origDim:
+    with open('../data/origdimU.ssv','r') as origDim:
         count = 0 
         added = 0
         for line in origDim:
@@ -129,7 +129,7 @@ def indexEverything():
             if ((count % 10000) ==0):
                 print(count, file=sys.stderr)
 
-    pickle.dump( engine, open( "./engine.p", "wb" ) )
+    pickle.dump( engine, open( pickleFile, "wb" ) )
     return engine
 
 my_file = Path(pickleFile)

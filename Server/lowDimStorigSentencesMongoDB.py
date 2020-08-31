@@ -20,7 +20,18 @@ col.create_index([('sentenceId', pymongo.ASCENDING)],unique=True)
 colSentences.drop()
 colSentences.create_index([('sentenceId', pymongo.ASCENDING)],unique=True)
 
-with io.open("../data/sentencesAll.tsv","r",encoding="utf-8") as infileSent:
+allURLs = [None]*95902
+count = 0
+with io.open('../data/corpusSourcesU.tsv','r',encoding='utf-8') as inFile:
+    for line2 in inFile:
+        if (count >0):
+            arrayOfValues2 = line2.split("\t")
+            #print(arrayOfValues2)
+            allURLs[int(arrayOfValues2[2])]= arrayOfValues2[4]
+        count = count + 1
+
+
+with io.open("../data/sentencesU.tsv","r",encoding="utf-8") as infileSent:
     sentenceCount = 0 
     
     #use zip for python 3
@@ -34,19 +45,43 @@ with io.open("../data/sentencesAll.tsv","r",encoding="utf-8") as infileSent:
         doc["offsetInit"] = int(arrayOfValues2[3])
         doc["offsetEnd"] = int(arrayOfValues2[4])
         doc["text"] = arrayOfValues2[5]
+        doc["url"] = allURLs[doc["docId"]]
         sentenceCount = sentenceCount + 1
         
         colSentences.insert_one(doc)
 
-
-with open("../data/red500k50p.ssv","r") as infileRed:
+max1 = 0
+max2 = 0
+min1 = 0
+min2 = 0
+with io.open('../data/redU500k50p.ssv','r',encoding='utf-8') as inFile:
+    for line1 in inFile:
+        arrayOfValues = line1.split(" ")
+        arrayOfValues[1] = float(arrayOfValues[1])
+        arrayOfValues[2] = float(arrayOfValues[2])
+        if max1 < arrayOfValues[1]:
+            max1 = arrayOfValues[1]
+        if max2 < arrayOfValues[2]:
+            max2 = arrayOfValues[2]
+        if min1 > arrayOfValues[1]:
+            min1 = arrayOfValues[1]
+        if min2 > arrayOfValues[2]:
+            min2 = arrayOfValues[2]
+        
+def transformValue(value,minVal,maxVal,startVal, rangeVal):
+    normValue = (value-minVal)/float(maxVal-minVal)
+    newValue = startVal + normValue *rangeVal
+    return (newValue)
+    
+    
+with open("../data/redU500k50p.ssv","r") as infileRed:
     counter = 0
     #use zip for python 3
     for line1 in infileRed:
         arrayOfValues = line1.split(" ")
         doc = {}
         
-        doc["projection"] = [float(arrayOfValues[1]), float(arrayOfValues[2])]
+        doc["projection"] = [transformValue(float(arrayOfValues[1]),min1,max1,-90,180), transformValue(float(arrayOfValues[2]),min2,max2,-180,360)]
         sentenceId = int(float(arrayOfValues[0]))
         doc["predictedSentence"] = float(arrayOfValues[3])
         doc["documentLabel"] = float(arrayOfValues[4])
