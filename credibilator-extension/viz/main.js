@@ -5,23 +5,38 @@
         
         this.verticalBottomSpace = 50;
         
+        this.nonCredibleColor = "red";
+        this.credibleColor = "green";
+        this.neutralColor = "white";
+        this.featuresToShow = 10;
+        
         
         //div names
-        this.styleDivId = "#visualizationStyle";
+        
         this.wordsDivId = "#visualizationWords";
         this.sentencesDivId = "#visualizationSentences";
         this.documentsDivId = "#visualizationDocuments";
+        
+        this.mapDocsDivId = "#visualizationMapDocs";
+        this.styleDivId = "#visualizationStyle";
+        this.featureContributionDivId = "#visualizationFeatureContribution";
+        this.sequenceTaggingDiv = "#sequenceViewDiv"
+        
         this.mapDivId = "#visualizationMap";
+        this.machineViewDivId = "#machineViewDiv";
+        
+        this.documentDivIds = [this.mapDocsDivId, this.styleDivId, this.featureContributionDivId,this.sequenceTaggingDiv];
+        this.sentenceDivIds = [this.mapDivId,this.machineViewDivId];
+        
         this.visDivIds = [this.styleDivId, this.wordsDivId, this.sentencesDivId, this.documentsDivId, this.mapDivId];
         
-        
         //mapping checkboxes to div
-        this.checkboxesToDiv = {"fancy-checkbox-style": this.styleDivId, 
+        /*this.checkboxesToDiv = {"fancy-checkbox-style": this.styleDivId, 
                            "fancy-checkbox-words": this.sentencesDivId,
                            "fancy-checkbox-sentences": this.sentencesDivId,
                            "fancy-checkbox-documents": this.documentsDivId,
                            "fancy-checkbox-map": this.mapDivId,
-                           };
+                           };*/
     }
     
     interfaceMethods.prototype.initialize = function(){
@@ -30,16 +45,46 @@
         
         this.setListeners();
         
-        this.hideAllVis();
+        //this.hideAllVis();
+        this.hideDocVis();
         
         //set all checkboxes with equal length
         $(".btn.btn-default.active").css("width", "6.5em");
         
     }
     
+    //Make display None for all
     interfaceMethods.prototype.hideAllVis = function(){
         this.visDivIds.forEach(function(d,i){
             $(d).hide();
+        })
+    }
+    
+    //Make display None for all the document-related-vis div
+    interfaceMethods.prototype.hideDocVis = function(){
+        this.documentDivIds.forEach(function(d,i){
+            $(d).hide();
+        })
+    }
+    
+    //Make display None for all the sentence-related-vis div
+    interfaceMethods.prototype.hideSentenceVis = function(){
+        this.sentenceDivIds.forEach(function(d,i){
+            $(d).hide();
+        })
+    }
+    
+    //Make visible all the document-related-vis div
+    interfaceMethods.prototype.showDocVis = function(){
+        this.documentDivIds.forEach(function(d,i){
+            $(d).show();
+        })
+    }
+    
+    //Make visible all the sentence-related-vis div
+    interfaceMethods.prototype.showSentenceVis = function(){
+        this.sentenceDivIds.forEach(function(d,i){
+            $(d).show();
         })
     }
     
@@ -57,14 +102,14 @@
         var thisObject = this;
         
         //listener checkboxes
-        $('input[type="checkbox"]').change(function() {
+        /*$('input[type="checkbox"]').change(function() {
             if ($(this).prop('checked')){
                 $(thisObject.checkboxesToDiv[$(this).prop("name")]).show();
             }
             else{
                 $(thisObject.checkboxesToDiv[$(this).prop("name")]).hide();
             }
-        })
+        })*/
     }
     
     
@@ -94,6 +139,10 @@ chrome.runtime.onMessage.addListener(
 let MAX_SEQUENCE_LENGTH=120;
 let MAX_DOCUMENT_LENGTH=50;
 let modelName='tfjs-10k-interp-iter';
+
+var totalNonCredibleDocs = 48031;
+var totalCredibleDocs = 47869;
+
 
 function descompContenedor(){
     unpackContainer(messageGlobal)
@@ -211,7 +260,7 @@ async function handleWordCodes(wordCodes){
     
 
     sp = new stylePanel.stylePanel("#visualizationStyle");
-
+    sp.setHeaderAndRows({"": []}, "#visualizationStyle", mp);
 
 
     //sp.setHeaderAndRows({"Avg. sentence Length": [{"valuesX":0, "valuesYNonCredible":10, "valuesYCredible":3},{"valuesX":1, "valuesYNonCredible":3, "valuesYCredible":5}, {"valuesX":2, "valuesYNonCredible":4, "valuesYCredible":10},{"valuesX":3, "valuesYNonCredible":7, "valuesYCredible":12},{"valuesX":4, "valuesYNonCredible":1, "valuesYCredible":16}],"# all caps sentences": [{"valuesX":0, "valuesYNonCredible":80, "valuesYCredible":13},{"valuesX":1, "valuesYNonCredible":23, "valuesYCredible":55}, {"valuesX":2, "valuesYNonCredible":34, "valuesYCredible":10},{"valuesX":3, "valuesYNonCredible":27, "valuesYCredible":12}]}, "#visualizationStyle", mp);
@@ -222,9 +271,12 @@ async function handleWordCodes(wordCodes){
     //sentPanel = new sentencePanel.sentencePanel("#visualizationSentences");
     //sentPanel.setKNearestSentences([{"text":"The authorities have suspended outbound planes and trains into the city, as well as buses, subways and ferries.", "label": "credible","source":"bbc.com"}, {"text":"There are more than 500 confirmed cases of the virus which has spread overseas.", "label": "noncredible","source":"bbc.com"}, {"text":"Residents have been told not to leave the city of 11 million people", "label": "credible","source":"bbc.com"},{"text":"The authorities have suspended outbound planes and trains into the city, as well as buses, subways and ferries.", "label": "credible","source":"bbc.com"}, {"text":"There are more than 500 confirmed cases of the virus which has spread overseas.", "label": "noncredible","source":"bbc.com"}, {"text":"The authorities have suspended outbound planes and trains into the city, as well as buses, sub.", "label": "credible","source":"bbc.com"},{"text":"The authorities have suspended outbound planes and trains into the city, as well as buses, subways and ferries.", "label": "credible","source":"bbc.com"}, {"text":"There are more than 500 confirmed cases of the virus which has spread overseas.", "label": "noncredible","source":"bbc.com"}, {"text":"The authorities have suspended outbound planes and trains into the city, as well as buses, subwa.", "label": "credible","source":"bbc.com"}])
 
-    mapPanelObj = new mapPanel.mapPanel("#visualizationMap",bec);
+    mapPanelObj = new mapPanel.mapPanel("#visualizationMap",bec, 'sentences');
     //mapPanel.setHeaderAndMap("random","#visualizationMap",mapPanel)
-    mp.setMapObject(mapPanel);
+    mp.setMapObject(mapPanelObj);
+    
+    mapPanelDocsObj = new mapPanel.mapPanel("#visualizationMapDocs",bec,'documents');
+    mp.setMapDocsObject(mapPanelDocsObj);
 }
 
 function stepCallback(i,I,probs,vecs){
@@ -250,6 +302,7 @@ function endCallback(prediction){
 	let predF=overallScore[1];
 	//document.getElementById("scored").innerHTML = "NONCREDIBLE: "+predF+"<br/>CREDIBLE: "+predR;    
     mp.setSentenceConfidence(predR);
+    mp.setCredibleBar(mp.sentenceConfidence);
 	showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
     mp.setText(listOfSentences);
 }
@@ -293,8 +346,8 @@ function showInterpretableNeural(tokenised,wordCodes,prediction){
 			//	break;
 			//}
 		}
-        console.log(i*2+1);
-        console.log(sentenceScores[i*2+1]);
+        //console.log(i*2+1);
+        //console.log(sentenceScores[i*2+1]);
         listOfSentences[i]["score"] = sentenceScores[i*2+1];
         listOfSentences[i]["html"] = sentenceHTML;
         i++;
@@ -336,6 +389,8 @@ console.log(listOfSentences)
     bec = new backendConnector.backendConnector();
     
     d3.select("#newsTitle").text(container.pageTitle);
+    
+    fcp = new featureContributionPanel.featureContributionPanel("#visualizationFeatureContribution", intObj);
 
     mp = new mainPanel.mainPanel("#fullText","#credibilityScore");
     
@@ -351,6 +406,9 @@ console.log(listOfSentences)
     
     readWordCodes("./bilstmavg/data/" + modelName + "/words.txt",handleWordCodes);
     
+    interpretClick();    
+    
+    
 
     //textProcessingObject = new textProcessing();
 
@@ -360,4 +418,312 @@ console.log(listOfSentences)
 
     
 }
+
+
+
+function showLogistic(glmDict,meanDict){
+	let html="<strong>SUM</strong><br/>\n";
+	let features=[];
+	let impacts={};
+	let intercept=glmDict["<INTERCEPT>"];
+	for (let feature in glmDict){
+		if (feature=="<INTERCEPT>"){
+			continue;
+		}
+		let featureVal=0;
+		if (feature in globalContainer.stylometricFeatures){
+			featureVal=globalContainer.stylometricFeatures[feature];
+		}
+		//if (feature.startsWith("mean")){
+			featureVal-=meanDict[feature];
+			intercept+=meanDict[feature]*glmDict[feature];
+		//}
+		features.push(feature)
+		impacts[feature]=featureVal*glmDict[feature];
+		if (feature=="TAG_?_Value_Noun"){
+			console.log(meanDict[feature])
+			console.log(glmDict[feature])
+			console.log(globalContainer.stylometricFeatures[feature])
+		}
+	}
+	features.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+	let chartData=[];
+	for (let feature of features.slice(0,9)){
+		if (impacts[feature]>0){
+			chartData.push({label:feature,y:-impacts[feature]});
+		}
+	}
+	for (let feature of features.slice(0,9)){
+		if (impacts[feature]<0){
+			chartData.push({label:feature,y:-impacts[feature]});
+		}
+	}
+	let remainder=intercept;
+	for (let feature of features.slice(9)){
+		remainder+=impacts[feature];
+	}
+	chartData.push({label:"OTHER",y:-remainder});
+	
+    
+	/*var chart = new CanvasJS.Chart("chartContainer", {
+	theme: "light1", // "light1", "ligh2", "dark1", "dark2"
+	animationEnabled: true,
+	title: {
+		text: "Feature contribution"
+	},
+	axisY: {
+		title: "Crediblity",
+		prefix: "",
+		lineThickness: 0,
+		suffix: ""
+	},
+	data: [{
+		type: "waterfall",
+		indexLabel: "{y}",
+		indexLabelFontColor: "#EEEEEE",
+		indexLabelPlacement: "inside",
+		yValueFormatString: "0.##",
+		risingColor:"blue",
+		fallingColor:"gold",
+		dataPoints: chartData
+	}]
+	});
+	chart.render();
+	return(html);
+    */
+}
+
+// Style interpretation requested by user
+async function interpretClick(){
+	loadGLMDictMean('../style/data/features.tsv',showInterp);
+    loadHistogramData();
+}
+
+async function getFeatureList(){
+	loadFeatureList('../style/data/featuresInOrder.tsv',saveFeatureOrder);
+}
+
+async function loadHistogramData(){
+	loadHistData('../style/data/histCredible.tsv',assignHistCredib);
+    loadHistData('../style/data/histNonCredible.tsv',assignHistNonCredib);
+}
+
+function loadHistData(path,callback){
+	doGET(path, callback,buildHistData);
+}
+
+function buildHistData(fileData) {
+	if (!fileData) {
+		return null;
+	}
+	let result={};
+	let lines=fileData.split('\n');
+	let line;
+	for (line of lines){
+		if (line==""){
+			continue;
+		}
+		let parts=line.split('\t')
+		let feature=parts[0];
+		let percentiles = [];
+        for(var i of [1,2,3,4,5,6,7,8,9,10,11]){
+            percentiles.push(parseFloat(parts[i]));
+        }
+        let freqs = [];
+        for(var i of [12,13,14,15,16,17,18,19,20,21]){
+            freqs.push(parseFloat(parts[i]));
+        }
+		//console.log(feature)
+		//console.log(coef)
+		result[feature]={"freqs":freqs,"percentiles":percentiles};
+	}
+	return(result)
+}
+
+async function assignHistCredib(result){
+	histCredible=result;
+}
+
+async function assignHistNonCredib(result){
+	histNonCredible=result;
+}
+
+async function saveFeatureOrder(result){
+	featureList = result;
+    featureValues = [];
+    var feature;
+    for (let ix in featureList){
+        feature = featureList[ix];
+		if (feature=="<INTERCEPT>"){
+			continue;
+		}
+		if (feature in globalContainer.stylometricFeatures){
+			featureValues.push(globalContainer.stylometricFeatures[feature]);
+		}
+        else{
+            featureValues.push(0);
+        }
+	}
+}
+
+async function showInterp(result){
+	glmDict=result[0];
+	let meanDict=result[1];
+	
+	showLogistic(glmDict,meanDict);
+	listOfCategories = showHighlightsCategory(glmDict);
+    listOfSequences = showHighlightsSequence(glmDict);
+}
+
+function showLogistic(glmDict,meanDict){
+	
+	featuresToVisualize=[];
+	impacts={};
+	intercept=glmDict["<INTERCEPT>"];
+	for (let feature in glmDict){
+		if (feature=="<INTERCEPT>"){
+			continue;
+		}
+		let featureVal=0;
+		if (feature in globalContainer.stylometricFeatures){
+			featureVal=globalContainer.stylometricFeatures[feature];
+		}
+		//if (feature.startsWith("mean")){
+			featureVal-=meanDict[feature];
+			intercept+=meanDict[feature]*glmDict[feature];
+		//}
+		featuresToVisualize.push(feature)
+		impacts[feature]=featureVal*glmDict[feature];
+		if (feature=="TAG_?_Value_Noun"){
+			console.log(meanDict[feature])
+			console.log(glmDict[feature])
+			console.log(globalContainer.stylometricFeatures[feature])
+		}
+	}
+	featuresToVisualize.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+    
+    getNFeatures(intObj.featuresToShow);
+    fcp.setHeaderAndRows(chartData,fcp.container,mp);
+	
+}
+function getNFeatures(n){
+    chartData=[];
+	for (let feature of featuresToVisualize.slice(0,n-1)){
+		//if (impacts[feature]>0){
+			chartData.push({label:feature,y:-impacts[feature]});
+		//}
+	}
+	/*for (let feature of featuresToVisualize.slice(0,n-1)){
+		if (impacts[feature]<0){
+			chartData.push({label:feature,y:-impacts[feature]});
+		}
+	}*/
+	let remainder=intercept;
+	for (let feature of featuresToVisualize.slice(n-1)){
+		remainder+=impacts[feature];
+	}
+	chartData.push({label:"OTHER",y:-remainder});
+	
+}
+
+function showHighlightsCategory(glmDict){
+	let listOfWordsCategory = [];
+    
+	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
+		let sentence=globalContainer.stylometricInterpretation[iS];
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let putSpace=true;
+            let textToken = "";
+			if (((iS==0)&&(iT==0))||(iT>0 && sentence[iT-1][1]==-1) || token[1]==1){
+				putSpace=false;
+			}
+			let impactSum=0;
+            let impactScore=0;
+            let include = false;
+            let impactReason=[];
+			for (let iL=0;iL<token[2].length;++iL){
+				let lemma=token[2][iL][0];
+				let categories=token[2][iL][1];
+				for (let cat of categories){
+                    
+					cat="catGI"+cat;
+                    
+					//if (cat in (featuresToVisualize.slice(0,intObj.featuresToShow-1))){
+					if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(cat)){
+						impactSum+=glmDict[cat];
+						impactScore+=impacts[cat];
+                        include = true;
+                        impactReason.push(token[2][iL][0]+"&rarr; "+cat+": "+featureDescription(cat));
+					}
+				}
+			}
+			//console.log(impactSum);
+            
+			if (putSpace){
+				textToken+=" ";
+			}
+            
+            if (textToken==" "){
+                listOfWordsCategory.push({"text":textToken,"score":0,"class":"normal","reason":impactReason});
+            }
+			if (include){
+				listOfWordsCategory.push({"text":token[0],"score":impactScore / Math.abs(impacts[featuresToVisualize[0]]),"class":"normal","reason":impactReason});
+			}else{
+				listOfWordsCategory.push({"text": token[0],"score":0,"class":"normal","reason":impactReason});
+			}
+		}
+	}
+    return(listOfWordsCategory);
+}
 console.log("here")
+
+function showHighlightsSequence(glmDict){
+    let listOfWordsSequence = [];
+    
+	
+	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
+		let sentence=globalContainer.stylometricInterpretation[iS];
+		let symbols=[];
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let symbol="";
+            
+            let putSpace=true;
+            let textToken = " ";
+			if (((iS==0)&&(iT==0))||(iT>0 && sentence[iT-1][1]==-1) || token[1]==1){
+				putSpace=false;
+                textToken = "";
+			}
+            let impactSum=0;
+            let impactScore=0;
+            let include = false;
+            let impactReason=[];
+            let symbolObject={"text": textToken + token[0], "score": 0, "class": "normal","reason":[]};
+			for (let tag of token[3]){
+				let tag2="TAG_"+tag;
+				//if (tag2 in glmDict && (glmDict[tag2]>IMPACT_THRS_TAG || glmDict[tag2]<-IMPACT_THRS_TAG)){
+                if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(tag2)){
+					let tagLen=(tag.match(/_/g) || []).length+1;
+					symbol=tag;
+                    symbolObject["score"]+= impacts[tag2]; 
+                    symbolObject["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+					if (tagLen>=2){
+						symbols[iT-1]=tag;
+                        listOfWordsSequence[listOfWordsSequence.length-1]["score"] +=impacts[tag2];
+                        listOfWordsSequence[listOfWordsSequence.length-1]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+						if (tagLen>=3){
+							symbols[iT-2]=tag;
+                            listOfWordsSequence[listOfWordsSequence.length-2]["score"] +=impacts[tag2];
+                            listOfWordsSequence[listOfWordsSequence.length-2]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+						}
+					}
+				}
+			}
+			symbols.push(symbol);
+            listOfWordsSequence.push(symbolObject);
+		}
+	}
+    return listOfWordsSequence;
+}
+

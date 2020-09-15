@@ -1,6 +1,6 @@
 (function (window, undefined) {
 
-    var mapPanel = function(selectorDiv,bec){
+    var mapPanel = function(selectorDiv,bec,mapType){
         //interface variables
         
         //id for the textual area
@@ -11,17 +11,16 @@
         this.backendObj = bec;
         
         
-        //get data asap
-        this.getData("random",500,null);
-        
-        this.typeOfMap = "sentence";
-        if (this.typeOfMap == "sentence"){
+        this.typeOfMap = mapType;
+        if (this.typeOfMap == "sentences"){
             this.dataId = "sentenceId";
         }
         else{
             this.dataId = "docId";
         }
-            
+        
+        //get data asap
+        this.getData("random",500,null);    
     }
     
     
@@ -45,7 +44,7 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         
         //set the div for thee tooltip
-        var div = d3.select(selectionDOM).append("div")	
+        this.divTooltip = d3.select(selectionDOM).append("div")	
                     .attr("class", "tooltip")				
                     .style("opacity", 0);
         
@@ -74,8 +73,8 @@
                                        .range([thisObj.credibleColor, "white", thisObj.nonCredibleColor])
         
         //set axis
-        var xAxis = d3.axisBottom(mapPanelObj.x).ticks(12);
-        var yAxis = d3.axisLeft(mapPanelObj.y).ticks(12 * height / width);
+        var xAxis = d3.axisBottom(thisObj.x).ticks(12);
+        var yAxis = d3.axisLeft(thisObj.y).ticks(12 * height / width);
         
         // x axis
         svg.append("g")
@@ -133,8 +132,18 @@
         scatter.selectAll(".dot")
             .data(data)
             .enter().append("circle")
-            .attr("fill", function (d){
-                return mapPanelObj.sentenceCredibleColors(d.predictedSentence);
+            .attr("fill", function (d,i){
+                if (thisObj.typeOfMap=="sentences"){
+                    return thisObj.sentenceCredibleColors(d.predictedSentence);
+                }
+                else{
+                    if (d.documentLabel<=0.5){
+                        return thisObj.credibleColor
+                    }
+                    else{
+                        return thisObj.nonCredibleColor
+                    }
+                }
             })
             .attr("stroke-width","2px" )
             .attr("stroke", function (d){
@@ -146,21 +155,37 @@
                 }
             })
             .attr("r", 4)
-            .attr("cx", function (d) { return mapPanelObj.x(d.projection[0]); })
-            .attr("cy", function (d) { return mapPanelObj.y(d.projection[1]); })
+            .attr("cx", function (d) { return thisObj.x(d.projection[0]); })
+            .attr("cy", function (d) { return thisObj.y(d.projection[1]); })
             .attr("opacity", 0.5)
             .on("mouseover", function(d) {		
-                div.transition()		
+                thisObj.divTooltip.transition()		
                     .duration(200)		
                     .style("opacity", .9);		
-                div.html(d.docId +": " + d.text + "<br/>"  + d.source)	
-                    .style("left", (d3.event.pageX + 20) + "px")		
-                    .style("top", (d3.event.pageY - 28) + "px");	
-                })					
+                
+                thisObj.divTooltip.html(function(){
+                    if (thisObj.typeOfMap=="sentences"){
+                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                    }
+                    else{
+                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                    }
+                })
+                .style("left", (d3.event.pageX + 20) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
             .on("mouseout", function(d) {		
-                div.transition()		
+                thisObj.divTooltip.transition()		
                     .duration(500)		
                     .style("opacity", 0);	
+            })
+            .on("mousedown", function(d){
+                 if (thisObj.typeOfMap=="sentences"){
+                    window.open(d.url,'_blank');
+                 }
+                 else{
+                     window.open(d.url,'_blank');
+                 }
             });
             
         
@@ -172,14 +197,14 @@
             var s = d3.event.selection;
             if (!s) {
                 if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-                mapPanelObj.removeZoomedData();
-                mapPanelObj.x.domain(mapPanelObj.xExtent).nice();
-                mapPanelObj.y.domain(mapPanelObj.yExtent).nice();
+                thisObj.removeZoomedData();
+                thisObj.x.domain(thisObj.xExtent).nice();
+                thisObj.y.domain(thisObj.yExtent).nice();
                 zoom();
             } else {
                 
-                mapPanelObj.x.domain([s[0][0], s[1][0]].map(mapPanelObj.x.invert, mapPanelObj.x));
-                mapPanelObj.y.domain([s[1][1], s[0][1]].map(mapPanelObj.y.invert, mapPanelObj.y));
+                thisObj.x.domain([s[0][0], s[1][0]].map(thisObj.x.invert, thisObj.x));
+                thisObj.y.domain([s[1][1], s[0][1]].map(thisObj.y.invert, thisObj.y));
                 scatter.select(".brush").call(brush.move, null);
                 zoom();
                 sampleData();
@@ -199,61 +224,95 @@
             svg.select("#axis--x").transition(t).call(xAxis);
             svg.select("#axis--y").transition(t).call(yAxis);
             scatter.selectAll("circle").transition(t)
-            .attr("cx", function (d) { return mapPanelObj.x(d.projection[0]); })
-            .attr("cy", function (d) { return mapPanelObj.y(d.projection[1]); });
+            .attr("cx", function (d) { return thisObj.x(d.projection[0]); })
+            .attr("cy", function (d) { return thisObj.y(d.projection[1]); });
         }
         function sampleData(){
             
-            dataToPass = {"sampling": "random" , "nSamples": 500, "range":[[mapPanelObj.x.domain()[0],mapPanelObj.y.domain()[0]],[mapPanelObj.x.domain()[1],mapPanelObj.y.domain()[1]]]};
-            thisObj.backendObj.backendCall(thisObj.backendObj.fakelandDataURL,dataToPass,thisObj.backendObj.returnZoomedData);
+            dataToPass = {"sampling": "random" , "nSamples": 500, "range":[[thisObj.x.domain()[0],thisObj.y.domain()[0]],[thisObj.x.domain()[1],thisObj.y.domain()[1]]]};
+            
+            if (thisObj.typeOfMap=="sentences"){
+                thisObj.backendObj.backendCall(thisObj.backendObj.fakelandDataURL,dataToPass,thisObj.backendObj.returnZoomedData);
+            }
+            else{
+                thisObj.backendObj.backendCall(thisObj.backendObj.fakelandDataURLDocs,dataToPass,thisObj.backendObj.returnZoomedData);
+            }
         }
 
     
     }
     
     mapPanel.prototype.removeZoomedData = function(){
-        d3.select("#scatterplot").selectAll(".zoomedDots")
+        var thisObj = this;
+        d3.select(thisObj.container).select("#scatterplot").selectAll(".zoomedDots")
         .remove();
     }
     
     mapPanel.prototype.drawZoomedData = function(origZoomData){
-        thisObject = this;
+        var thisObj = this;
         var zoomData = origZoomData.filter(function(d){
-            return !(mapPanelObj.data.includes(d[thisObject.dataId]));
+            return !(thisObj.data.includes(d[thisObj.dataId]));
         });
         
-        var div = d3.select(".tooltip");
-        d3.select("#scatterplot").selectAll(".zoomedDots")
+        
+        d3.select(thisObj.container).select("#scatterplot").selectAll(".zoomedDots")
             .data(zoomData,function(d){return d[this.dataId]})
             .enter().append("circle")
             .attr("class","zoomedDots")
-            .attr("fill", function (d){
-                return mapPanelObj.sentenceCredibleColors(d.predictedSentence);
+            .attr("fill", function (d,i){
+/*                if (i==0){
+                        console.log(d)
+                        console.log(thisObj)
+                }*/
+                if (thisObj.typeOfMap=="sentences"){
+                    return thisObj.sentenceCredibleColors(d.predictedSentence);
+                }
+                else{
+                    if (d.documentLabel<=0.5){
+                        return thisObj.credibleColor
+                    }
+                    else{
+                        return thisObj.nonCredibleColor
+                    }
+                }
+                
                 //return "black"
             })
             .attr("stroke-width","2px" )
             .attr("stroke", function (d){
-                if (d.documentLabel<=0.5){
-                    return mapPanelObj.credibleColor
+                if (thisObj.typeOfMap=="sentences"){
+                    if (d.documentLabel<=0.5){
+                        return thisObj.credibleColor
+                    }
+                    else{
+                        return thisObj.nonCredibleColor
+                    }
                 }
                 else{
-                    return mapPanelObj.nonCredibleColor
+                    return null;
                 }
             })
             .attr("r", 4)
-            .attr("cx", function (d) { return mapPanelObj.x(d.projection[0]); })
-            .attr("cy", function (d) { return mapPanelObj.y(d.projection[1]); })
+            .attr("cx", function (d) { return thisObj.x(d.projection[0]); })
+            .attr("cy", function (d) { return thisObj.y(d.projection[1]); })
             .attr("opacity", 0.5)
             .on("mouseover", function(d) {		
-                div.transition()		
+                thisObj.divTooltip.transition()		
                     .duration(200)		
                     .style("opacity", .9);		
-                div.html(d.docId +": " + d.text + "<br/>"  + d.source)	
-                    .style("left", (d3.event.pageX + 20) + "px")		
-                    .style("top", (d3.event.pageY - 28) + "px");	
-                })					
+                thisObj.divTooltip.html(function(){
+                    if (thisObj.typeOfMap=="sentences"){
+                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                    }
+                    else{
+                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                    }
+                })
+                .style("left", (d3.event.pageX + 20) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
             .on("mouseout", function(d) {		
-                div.transition()		
+                thisObj.divTooltip.transition()		
                     .duration(500)		
                     .style("opacity", 0);	
             })
@@ -287,18 +346,27 @@
         //return randomData(300);
         var thisObj = this;
         dataToPass = {"sampling": sampling , "nSamples": nSamples, "range":range};
-        this.backendObj.backendCall(thisObj.backendObj.fakelandDataURL,dataToPass,thisObj.backendObj.returnData)
+console.log(this.typeOfMap)
+        if (this.typeOfMap=="sentences"){
+
+            this.backendObj.backendCall(thisObj.backendObj.fakelandDataURL,dataToPass,thisObj.backendObj.returnData)
+        }
+        
+        if (this.typeOfMap=="documents"){
+
+            this.backendObj.backendCall(thisObj.backendObj.fakelandDataURLDocs,dataToPass,thisObj.backendObj.returnDataDocs)
+        }
         
     }
     
     mapPanel.prototype.showNeighbors = function(data){
-        var thisObject = this;
-        var indexNeighbors = data.map(x => x[thisObject.dataId]);
+        var thisObj = this;
+        var indexNeighbors = data.map(x => x[thisObj.dataId]);
         
-        var thisObject = this;
-        d3.select(this.container).selectAll("circle")
+        
+        d3.select(this.container).select("#scatterplot").selectAll("circle")
         .select(function(d,i){
-            if (indexNeighbors.includes(d[thisObject.dataId])){
+            if (indexNeighbors.includes(d[thisObj.dataId])){
                 return this
             }
             else{
@@ -314,10 +382,20 @@
     mapPanel.prototype.resetAllNeighbors = function(){
         var thisObj = this;
         
-        d3.select(this.container).selectAll("circle")        
+        d3.select(this.container).select("#scatterplot").selectAll("circle")        
         .attr("r", 4)
         .attr("fill", function (d){
-                return mapPanelObj.sentenceCredibleColors(d.predictedSentence);
+                if (thisObj.typeOfMap=="sentences"){
+                    return thisObj.sentenceCredibleColors(d.predictedSentence);
+                }
+                else{
+                    if (d.documentLabel<=0.5){
+                        return thisObj.credibleColor
+                    }
+                    else{
+                        return thisObj.nonCredibleColor
+                    }
+                }
             })
         .attr("stroke", function (d){
             if (d.documentLabel<=0.5){
@@ -330,9 +408,10 @@
         .attr("stroke-width", "2px");
     }
     mapPanel.prototype.resetNeighbors = function(indexNeighbors){
+        //Not used
         var thisObj = this;
         
-        d3.select(this.container).selectAll("circle")
+        d3.select(this.container).select("#scatterplot").selectAll("circle")
         .select(function(d,i){
             if (indexNeighbors.includes(i)){
                 return this

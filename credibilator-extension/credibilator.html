@@ -5,6 +5,7 @@
 <title>Credibilator</title>
 <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"-->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <!--link rel="stylesheet" href="https://unpkg.com/@coreui/coreui/dist/css/coreui.min.css"-->
 <link rel="stylesheet" href="./viz/credibilator.css">
@@ -33,13 +34,18 @@
                 </div>
                 <div class="custom-control custom-switch">
                       <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
-                      <input type="checkbox" class="custom-control-input" disabled id="switchSentenceScore">
-                      <label class="custom-control-label" for="switchSentenceScore">Sentence-based score</label>
+                      <input type="checkbox" class="custom-control-input" disabled id="switchSentenceScore" checked="checked">
+                      <label class="custom-control-label active" for="switchSentenceScore">Sentence-based score</label>
                 </div>
-                <div class="custom-control custom-switch">
+                <div class="custom-control custom-switch" id="machineViewDiv">
                       <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
                       <input type="checkbox" class="custom-control-input" disabled id="switchMachineView">
                       <label class="custom-control-label" for="switchMachineView">Machine view</label>
+                </div>
+                <div class="custom-control custom-switch" id="sequenceViewDiv">
+                      <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
+                      <input type="checkbox" class="custom-control-input" id="switchSequenceView">
+                      <label class="custom-control-label" for="switchSequenceView">Sequence tagging</label>
                 </div>
                 <div id = "modelMsg"></div>
                 <div id = "newsTitle"> </div>
@@ -47,7 +53,7 @@
                 </div>
             </td>
             <td style="width:50%; vertical-align: top" id="rightColumn">
-                <div id="visOptions">
+                <!--div id="visOptions">
                     <div class="[ form-group ]">
                         <input type="checkbox" name="fancy-checkbox-style" id="fancy-checkbox-style" autocomplete="off" />
                         <div class="[ btn-group ]">
@@ -108,14 +114,20 @@
                             </label>
                         </div>
                     </div>
-                </div>
+                </div-->
                 <div id="visualizationStyle">
+                </div>
+                <div id="visualizationFeatureContribution">
+                    <button id="increaseFeatureButton" class="btn"><i class="fa fa-plus-circle"></i></button>
+                    <button id="reduceFeatureButton" class="btn"><i class="fa fa-minus-circle"></i></button>
                 </div>
                 <div id="visualizationSentences" style="vertical-align:top;font-size:10pt">
                 </div>
                 <div id="visualizationDocuments" style="vertical-align:top;font-size:10pt">
                 </div>
                 <div id="visualizationMap" style="vertical-align:top;font-size:10pt">
+                </div>
+                <div id="visualizationMapDocs" style="vertical-align:top;font-size:10pt">
                 </div>
             </td>
 
@@ -130,6 +142,9 @@
 <script src="./viz/sentences.js"></script>
 <script src="./viz/mainPanel.js"></script>
 <script src="./viz/fakelandmap.js"></script>
+<script src="./viz/featureContribution.js"></script>
+<script src="./style/glm.js"></script>
+<script src="./style/featureDescs.js"></script>
 <script src="./viz/main.js"></script>
 
 </html>  

@@ -19,7 +19,7 @@
             height = 490 - margin.top - margin.bottom;
         
         //In case we want to do it through a selector
-        this.addSelector(selectionDOM, Object.keys(listOfValuesAllRows), listOfValuesAllRows);
+        /*this.addSelector(selectionDOM, Object.keys(listOfValuesAllRows), listOfValuesAllRows);*/
         
         var svg = d3.select(selectionDOM).append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -44,21 +44,22 @@
             //Create row group
             var selectionForRow = svg.append("g")
             .attr("class","groupInRow")
-            .attr("transform", "translate(0,"  + (margin.top + i *  (height/a.length))+ ")");
+            .attr("transform", "translate(10,"  + (margin.top + i *  (height/a.length))+ ")");
             
-            idThisDocument = mainPanelObj.getTargetTextProperty(d, listOfValuesAllRows[d].map(function(d){return d.valuesX}));
-            thisObject.setTwoColumnBarChart(d, listOfValuesAllRows[d], selectionForRow, idThisDocument);
+            /*idThisDocument = mainPanelObj.getTargetTextProperty(d, listOfValuesAllRows[d].map(function(d){return d.valuesX}));
+            thisObject.setTwoColumnBarChart(d, selectionForRow);
+            */
         });
         
     }
     
-    stylePanel.prototype.reDrawFirstRow = function(d,thisObject){
+    stylePanel.prototype.reDrawFirstRow = function(featureLabel){
         
-        var valuesXExtracted = thisObject.listOfValuesAllRows[d].map(function(d){return d.valuesX});
+        /*var valuesXExtracted = thisObject.listOfValuesAllRows[d].map(function(d){return d.valuesX});
         
-        idThisDocument = this.mainPanelObj.getTargetTextProperty(d, valuesXExtracted);
+        idThisDocument = this.mainPanelObj.getTargetTextProperty(d, valuesXExtracted);*/
         
-        this.setTwoColumnBarChart(d, thisObject.listOfValuesAllRows[d], d3.select(".groupInRow"), idThisDocument);
+        sp.setTwoColumnBarChart(featureLabel, d3.select(".groupInRow"));
     }
     
     stylePanel.prototype.addSelector = function(container,elements){
@@ -86,7 +87,7 @@
           })
     }
     
-    stylePanel.prototype.setTwoColumnBarChart = function(rowHeader,listOfValuesColumns,container, idThisDocument){
+    stylePanel.prototype.setTwoColumnBarChart = function(rowHeader,container){
         //
         
         var margin = {top: 40, right: 12, bottom: 4, left: 20, secondLeft: 240};
@@ -132,33 +133,38 @@
         .text(rowHeader);
         
         //prepare data
-        listOfValuesNonCredible = listOfValuesColumns.map(function(d,i){
+        var idNonCredible = 0;
+        listOfValuesNonCredible = histNonCredible[rowHeader].percentiles.map(function(d,i,arr){
             //delete d.valuesYCredible;
             //d.valuesY = d.valuesYNonCredible;
             //delete d.valuesYNonCredible;
-            if (i == idThisDocument){
-                return {"valuesX":"(this doc) " + d.valuesX,"valuesY":d.valuesYCredible};;
+            if ((d <= globalContainer.stylometricFeatures[rowHeader])&&((i+1)<(arr.length))&&(arr[i+1]>globalContainer.stylometricFeatures[rowHeader])){
+                idNonCredible = i
+                return {"valuesX":"(this doc) " + (i*10)+"-"+((i+1)*10)+"%","valuesY":histNonCredible[rowHeader].freqs[i]/totalNonCredibleDocs};
+                
             }
             else{
-                return {"valuesX":d.valuesX,"valuesY":d.valuesYNonCredible};
+                return {"valuesX":  (i*10)+"-"+((i+1)*10)+"%","valuesY":histNonCredible[rowHeader].freqs[i]/totalNonCredibleDocs};
             }
         });
-
-        listOfValuesCredible = listOfValuesColumns.map(function(d,i){
+        listOfValuesNonCredible.pop();
+        var idCredible=0;
+        listOfValuesCredible = histNonCredible[rowHeader].percentiles.map(function(d,i,arr){
             //delete d.valuesYNonCredible;
             //d.valuesY = d.valuesYCredible;
             //delete d.valuesYCredible;
-            if (i == idThisDocument){
-                return {"valuesX":"(this doc) " + d.valuesX,"valuesY":d.valuesYCredible};;
+            if ((d <= globalContainer.stylometricFeatures[rowHeader])&&((i+1)<(arr.length))&&(arr[i+1]>globalContainer.stylometricFeatures[rowHeader])){
+                idCredible = i;
+                return {"valuesX":"(this doc) " + (i*10)+"-"+((i+1)*10)+"%","valuesY":histCredible[rowHeader].freqs[i]/totalCredibleDocs};
             }
             else{
-                return {"valuesX":d.valuesX,"valuesY":d.valuesYCredible};;
+                return {"valuesX": (i*10)+"-"+((i+1)*10)+"%","valuesY": histCredible[rowHeader].freqs[i]/totalCredibleDocs};
             }
         })
-        
+        listOfValuesCredible.pop();
         //set the two bar charts
-        this.setSingleBarChart(listOfValuesNonCredible, container.select(".leftGroupInRow"), idThisDocument);
-        this.setSingleBarChart(listOfValuesCredible, container.select(".rightGroupInRow"), idThisDocument);
+        this.setSingleBarChart(listOfValuesNonCredible, container.select(".leftGroupInRow"), idNonCredible);
+        this.setSingleBarChart(listOfValuesCredible, container.select(".rightGroupInRow"), idCredible);
         
     }
     

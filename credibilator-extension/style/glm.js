@@ -1,8 +1,32 @@
 var glmDict
 
+function loadFeatureList(path,callback){
+	doGET(path, callback,buildGLMList);
+}
+
+function buildGLMList(fileData) {
+	if (!fileData) {
+		return null;
+	}
+	let result=[];
+	let lines=fileData.split('\n');
+	let line;
+	for (line of lines){
+		if (line==""){
+			continue;
+		}
+		result = line.split('\t')
+		
+	}
+	
+	return(result)
+}
+
 function loadGLMDict(path,callback){
 	doGET(path, callback,buildGLMDict);
 }
+
+
 
 function buildGLMDict(fileData) {
 	if (!fileData) {

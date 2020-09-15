@@ -15,17 +15,25 @@
         this.scaleCredibleIndicatorColor = d3.scaleLinear().domain([0,1]).range(["lightblue","red"]);
         
         //variables for the textual area
-        this.scaleNonCredibleTextHighlightColor = d3.scaleLinear().domain([0,1]).range(["white","red"]);
+        this.scaleNonCredibleTextHighlightColor = d3.scaleLinear().domain([0,1]).range([intObj.neutralColor,intObj.nonCredibleColor]);
+        this.scaleCredibleTextHighlightColor = d3.scaleLinear().domain([0,1]).range([intObj.neutralColor, intObj.credibleColor]);
         
-        this.currentConfidence = "document";
+        this.currentConfidence = "sentence";
         this.currentView = "human";
+        this.currentHighlighting = "category";
             
         $('#switchSentenceScore').on('change', function (event) {      thisObject.switchConfidence();
         }); 
         $('#switchMachineView').on('change', function (event) {      thisObject.switchMachineView();
         }); 
+        $('#switchSequenceView').on('change', function (event) {      thisObject.switchTagging();
+        }); 
         
         this.neighborsToRetrieve = 10;
+        
+        this.divTooltip = d3.select(selectorText).append("div")	
+                    .attr("class", "tooltip")				
+                    .style("opacity", 0);
     }
     
     mainPanel.prototype.setSentenceConfidence = function(value){
@@ -40,10 +48,27 @@
         if (this.currentConfidence=="document"){
             this.currentConfidence="sentence";
             this.setCredibleBar(this.sentenceConfidence);
+            intObj.hideDocVis();
+            intObj.showSentenceVis();
+            mp.setText(listOfSentences);
+            if (this.currentView=="machine"){
+                this.setMachineView();
+            }
+            else{
+                this.setHumanView();
+            }
         }
         else{
             this.currentConfidence = "document";
             this.setCredibleBar(this.documentConfidence);
+            intObj.hideSentenceVis();
+            intObj.showDocVis();
+            if (this.currentHighlighting=="category"){
+                this.setText(listOfCategories);
+            }
+            else{
+                this.setText(listOfSequences);
+            }
         }
     }
     
@@ -55,6 +80,17 @@
         else{
             this.currentView = "machine";
             this.setMachineView();
+        }
+    }
+    
+    mainPanel.prototype.switchTagging = function(){
+        if (this.currentHighlighting=="category"){
+            this.currentHighlighting="sequence";
+            this.setText(listOfSequences);
+        }
+        else{
+            this.currentHighlighting = "category";
+            this.setText(listOfCategories);
         }
     }
     
@@ -74,23 +110,36 @@
         this.mapObject = mapObj;
     }
     
+    mainPanel.prototype.setMapDocsObject = function(mapObj){
+        this.mapDocsObject = mapObj;
+    }
+    
     
     mainPanel.prototype.setText = function(listOfText){
         //This function sets text in the textual area
         
         //listOfText is a list of tokenized spans with class and text keys
         //The text would go as text span and the class as class spans
+        //score is the sentence score
         var thisObject = this;
         var selectedSpan = d3.select(thisObject.textContainerId)
         .selectAll("span")
+        .filter(function(d){
+            return (d!=undefined);
+        })
         .data(listOfText);
         
-        selectedSpan.enter().append("span")
+        aux = selectedSpan.enter().append("span")
         .merge(selectedSpan)
         .attr("class", function(d){
             return d.class;})
         .style("background-color",function(d){
-            return thisObject.scaleNonCredibleTextHighlightColor(d.score);
+            if (d.score>0){
+                return thisObject.scaleNonCredibleTextHighlightColor(d.score);
+            }
+            else{
+                return thisObject.scaleCredibleTextHighlightColor(Math.abs(d.score));
+            }
         })
         .html(function(d){
             if (d.html!=null){
@@ -108,13 +157,32 @@
             //actions on hovering
             //thisObject.mapObject.showNeighbors(thisObject.getkNN(d,3));
             $(this).css({"outline": "1px solid blue", "padding" : ".2em .4em"});
+            
+            //show tooltip
+            if (thisObject.currentConfidence=="document"){
+                var div = mp.divTooltip;
+                div.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                div.html(d.reason.join("<br/>"))
+                        .style("left", (d3.event.pageX + 20) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");	
+            }
         })
-        .on("mouseout", function(d,i){            
+        .on("mouseout", function(d,i){
+            if (thisObject.currentConfidence=="document"){
+                //hide tooltip
+                var div = mp.divTooltip;
+                div.transition()		
+                    .duration(500)		
+                    .style("opacity", 0);
+            }
         })
         .on("mousedown",function(d,i){
             mp.getkNN(d,mp.neighborsToRetrieve)
-        })
-        ;
+        });
+        
+        selectedSpan.exit().remove();
     }
     
     mainPanel.prototype.getkNN = function(datum, k){
@@ -122,6 +190,14 @@
         dataToPass = {"n": k , "query": datum.origVector};
         bec.backendCall(bec.fakelandDataURLkNeigh,dataToPass,bec.returnKNeighbors);
     }
+    
+    mainPanel.prototype.getkNNDocs = function(k,featureValues){
+        mapPanelDocsObj.resetAllNeighbors();
+        
+        dataToPass = {"n": k , "query": featureValues};
+        bec.backendCall(bec.fakelandDataURLkNeighDocs,dataToPass,bec.returnKNeighbors);
+    }
+    
     mainPanel.prototype.setCredibleBar = function(score){
         var topOfOutline = 10;
         

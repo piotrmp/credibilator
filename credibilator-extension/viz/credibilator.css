@@ -8,9 +8,9 @@ span.underlined {
 
 /*end text span style*/
 /*style barchart-----------------------------------*/
-.normalBar{
+/*.normalBar{
     fill: steelblue;
-}
+}*/
 
 .thisBar{
     fill: orange;
