@@ -220,6 +220,39 @@ function showHighlights(glmDict){
 		html+="<br/>"
 	}
 
+	html+="<strong>CASE</strong><br/>";
+	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
+		let sentence=globalContainer.stylometricInterpretation[iS];
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let putSpace=true;
+			if (html=="" || (iT>0 && sentence[iT-1][1]==-1) || token[1]==1){
+				putSpace=false;
+			}
+			if (putSpace){
+				html+=" ";
+			}
+			let prefix="";
+			let suffix="";
+			let casingId=getCasing(token[0])
+			let featureName=["wordscased","wordsCASED","wordsCased","wordsCaSeD"][casingId]
+			if (featureName in glmDict && glmDict[featureName]>0){
+				let featureDesc=featureDescription(featureName)
+				let color="yellow";
+				prefix="<span title=\""+featureDesc+"\" style=\"background-color:"+color+"\">"
+				suffix="</span>"
+			}			
+			if (featureName in glmDict && glmDict[featureName]<0){
+				let featureDesc=featureDescription(featureName)
+				let color="aqua";
+				prefix="<span title=\""+featureDesc+"\" style=\"background-color:"+color+"\">"
+				suffix="</span>"
+			}			
+			html+=prefix+token[0]+suffix;
+		}
+		html+="<br/>"
+	}
+	
 	return(html);
 }
 

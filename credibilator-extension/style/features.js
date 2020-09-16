@@ -26,7 +26,7 @@ function generateFeatures(tagged){
 			let interpPOS=[];
 			// casing features
 			if (tags!=null && token.length>1){
-				casing=getCasing(token,tags);
+				casing=getCasing(token);
 				casedNo[casing]++;
 			}
 			// dict features
@@ -106,7 +106,7 @@ function increment(dict,value){
 	dict[value]++
 }
 
-function getCasing(token,tags){
+function getCasing(token){
 	if (token.toLowerCase()==token){
 		return 0;
 	}else if (token.toUpperCase()==token){
