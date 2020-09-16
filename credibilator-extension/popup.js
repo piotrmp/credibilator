@@ -11,7 +11,16 @@ chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		// store the message
 		container=request;
-		startProcessing()
+		let charNumber=container.textContent.length
+		let lineNumber=container.textContent.split(/\r?\n/).length
+		let wordNumber=container.textContent.split(/\s+/).length
+		if (charNumber<500){
+			document.getElementById("judgement").innerHTML= " too short for credibility assessment.";
+		}else if ((wordNumber/lineNumber)<15){
+			document.getElementById("judgement").innerHTML=" too fragmented for credibility assessment.";
+		}else{
+			startProcessing()
+		}
 });
 
 
