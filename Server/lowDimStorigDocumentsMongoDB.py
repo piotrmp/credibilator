@@ -1,10 +1,11 @@
-# coding: utf-8
+    # coding: utf-8
 
 import pymongo
 
 import pprint
 from bson.son import SON
 import io
+import random
 
 client = pymongo.MongoClient('localhost', 27017)
 
@@ -43,31 +44,32 @@ with io.open('../data/metadata.tsv','r',encoding='utf-8') as inFile:
         count = count + 1
 
 
-with io.open("../data/metadata.tsv","r",encoding="utf-8") as infileSent:
-    lineCount = 0 
+# with io.open("../data/metadata.tsv","r",encoding="utf-8") as infileSent:
+    # lineCount = 0 
     
-    #use zip for python 3
-    for line2 in infileSent:
-        if (lineCount >0):
-            doc = {}
-            arrayOfValues2 = line2.split("\t")
+    # #use zip for python 3
+    # for line2 in infileSent:
+        # if (lineCount >0):
+            # doc = {}
+            # arrayOfValues2 = line2.split("\t")
             
-            #with fileId
-            #doc["docId"] = int(arrayOfValues2[2])
+            # #with fileId
+            # #doc["docId"] = int(arrayOfValues2[2])
             
-            #with row as id
-            doc["docId"] = lineCount        
+            # #with row as id
+            # doc["docId"] = lineCount        
             
-            doc["documentLabel"] = float(arrayOfValues2[0])
-            doc["source"] = arrayOfValues2[1]
+            # doc["documentLabel"] = float(arrayOfValues2[0])
+            # doc["source"] = arrayOfValues2[1]
             
             
-            doc["text"] = arrayOfValues2[3]
-            doc["url"] = arrayOfValues2[5]
-            doc["oldUrl"] = arrayOfValues2[4]
-            lineCount = lineCount + 1
+            # doc["text"] = arrayOfValues2[3]
+            # doc["url"] = arrayOfValues2[5]
+            # doc["oldUrl"] = arrayOfValues2[4]
             
-            colDocs.insert_one(doc)
+            
+            # colDocs.insert_one(doc)
+        # lineCount = lineCount + 1
 
 max1 = 0
 max2 = 0
@@ -112,6 +114,7 @@ with open("../data/styleU50pSfixC.ssv","r") as infileRed:
         doc["text"] = titles[counter]
         doc["source"] = sources[counter]
         doc["url"] = allURLs[counter]
+        doc["random"] = random.randint(0,95900)
         try:
             colTwoDDocs.insert_one(doc)
         except Exception as e:

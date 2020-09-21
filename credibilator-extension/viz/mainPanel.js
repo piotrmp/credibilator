@@ -9,10 +9,15 @@
         this.barContainerId = selectorBar;
         
         //variables for the credibility bar        
-        this.credibleBarWidth = 100
-        this.credibleBarLeftMargin = 100
+        this.credibilityBarSVGwidth = 400
+        this.credibleBarWidth = 200
+        this.credibleBarLeftMargin = 70
         this.scaleCredibleIndicatorSize = d3.scaleLinear().domain([0,1]).range([1,this.credibleBarWidth]);
-        this.scaleCredibleIndicatorColor = d3.scaleLinear().domain([0,1]).range(["lightblue","red"]);
+        //this.scaleCredibleIndicatorColor = d3.scaleLinear().domain([0,1]).range(["lightblue","red"]);
+        
+        this.scaleCredibleIndicatorColor = d3.scaleLinear()
+                                       .domain([0, 0.5, 1])
+                                       .range([intObj.nonCredibleColor, intObj.neutralColor, intObj.credibleColor])
         
         //variables for the textual area
         this.scaleNonCredibleTextHighlightColor = d3.scaleLinear().domain([0,1]).range([intObj.neutralColor,intObj.nonCredibleColor]);
@@ -24,14 +29,38 @@
             
         $('#switchSentenceScore').on('change', function (event) {      thisObject.switchConfidence();
         }); 
-        $('#switchMachineView').on('change', function (event) {      thisObject.switchMachineView();
-        }); 
-        $('#switchSequenceView').on('change', function (event) {      thisObject.switchTagging();
-        }); 
+        /*$('#switchMachineView').on('change', function (event) {      thisObject.switchMachineView();
+        }); */
+        $('#machineViewOff').on("change", function () {
+
+            thisObject.switchMachineView();
+        });
+        $('#machineViewOn').on("change", function () {
+
+            thisObject.switchMachineView();
+        });
+        /*$('#switchSequenceView').on('change', function (event) {      thisObject.switchTagging();
+        });*/ 
+        
+        $('#highlightCategory').on("change", function () {
+
+            thisObject.switchTripleTagging("category");
+        });
+        
+        $('#highlightSequence').on("change", function () {
+            thisObject.switchTripleTagging("sequence");
+        });
+        
+        $('#highlightCasing').on("change", function () {
+            thisObject.switchTripleTagging("casing");
+        });
         
         this.neighborsToRetrieve = 10;
         
         this.divTooltip = d3.select(selectorText).append("div")	
+                    .attr("class", "tooltip")				
+                    .style("opacity", 0);
+        this.divTooltipCredScore = d3.select(selectorBar).append("div")	
                     .attr("class", "tooltip")				
                     .style("opacity", 0);
     }
@@ -57,18 +86,27 @@
             else{
                 this.setHumanView();
             }
+            //No need to blank this one
+            //docPanelObj.setKNearestSentences([]);
         }
         else{
             this.currentConfidence = "document";
             this.setCredibleBar(this.documentConfidence);
             intObj.hideSentenceVis();
             intObj.showDocVis();
+            docPanelObj.adjustPanelHeight();
+            
             if (this.currentHighlighting=="category"){
                 this.setText(listOfCategories);
             }
-            else{
+            else if (this.currentHighlighting=="sequence"){
                 this.setText(listOfSequences);
             }
+            else if (this.currentHighlighting=="casing"){
+                this.setText(listOfCasing);
+            }
+            sentPanelObj.setKNearestSentences([]);
+            sentPanelObj.showTargetSentence("");
         }
     }
     
@@ -83,6 +121,7 @@
         }
     }
     
+    //Not used since we have three categories
     mainPanel.prototype.switchTagging = function(){
         if (this.currentHighlighting=="category"){
             this.currentHighlighting="sequence";
@@ -91,6 +130,23 @@
         else{
             this.currentHighlighting = "category";
             this.setText(listOfCategories);
+        }
+    }
+    
+    mainPanel.prototype.switchTripleTagging = function(newTagging){
+        if (this.currentHighlighting!=newTagging){
+            if (newTagging=="sequence"){
+                this.currentHighlighting="sequence";
+                this.setText(listOfSequences);
+            }
+            if (newTagging=="category"){
+                this.currentHighlighting = "category";
+                this.setText(listOfCategories);
+            }
+            if (newTagging=="casing"){
+                this.currentHighlighting = "casing";
+                this.setText(listOfCasing);
+            }            
         }
     }
     
@@ -159,27 +215,38 @@
             $(this).css({"outline": "1px solid blue", "padding" : ".2em .4em"});
             
             //show tooltip
-            if (thisObject.currentConfidence=="document"){
-                var div = mp.divTooltip;
-                div.transition()
-                        .duration(200)
-                        .style("opacity", .9);
-                div.html(d.reason.join("<br/>"))
-                        .style("left", (d3.event.pageX + 20) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");	
-            }
+            
+            var div = mp.divTooltip;
+            div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                    
+            div.html(function(){
+                if (thisObject.currentConfidence=="document"){
+                    return d.reason.join("<br/>")
+                }
+                else{
+                    return "Predicted sentence credibility: " +((1-d.score)*100).toFixed(2) + "%"
+                }
+            })
+            .style("left", (d3.event.pageX + 20) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");	
+            
         })
         .on("mouseout", function(d,i){
-            if (thisObject.currentConfidence=="document"){
-                //hide tooltip
-                var div = mp.divTooltip;
-                div.transition()		
-                    .duration(500)		
-                    .style("opacity", 0);
-            }
+            
+            //hide tooltip
+            var div = mp.divTooltip;
+            div.transition()		
+            .duration(500)		
+            .style("opacity", 0);
+            
         })
         .on("mousedown",function(d,i){
-            mp.getkNN(d,mp.neighborsToRetrieve)
+            if (thisObject.currentConfidence=="sentence"){
+                sentPanelObj.showTargetSentence(d.text);
+                mp.getkNN(d,mp.neighborsToRetrieve)
+            }
         });
         
         selectedSpan.exit().remove();
@@ -210,7 +277,7 @@
         //insert group (first time only)
         var insertedGroup = selectedSVG.enter().append("svg")
         .attr("height", 40)
-        .attr("width", 200)
+        .attr("width", thisObject.credibilityBarSVGwidth)
         .append("g")
         .attr("id","credibleBarGroup");
         
@@ -231,8 +298,8 @@
         .attr("x", thisObject.credibleBarLeftMargin - 5)
         .style("text-anchor", "end")
         .attr("y", 18)
-        .style("fill","green")
-        .style("font-size","11px")    
+        //.style("fill","green")
+        .style("font-size","13px")    
         .text(function(d){return "Credibility";});
         
         //Add reference lines (first time only)
@@ -297,11 +364,39 @@
         .style("fill",function(d,i){
             return thisObject.scaleCredibleIndicatorColor(d);
         })
+        /*.style("stroke", function(d){
+            if (Math.abs(d)>0.5){
+                return intObj.credibleColor;
+            }
+            else{
+                return intObj.nonCredibleColor;
+            }
+        })*/
         .attr("width", function(d,i){
             return thisObject.scaleCredibleIndicatorSize(Math.abs(d));
         });
         
-        
+        d3.select("#credibleBarGroup").selectAll(".credibleRect")
+        .on("mouseover", function(d){
+            //show tooltip
+            
+            var div = mp.divTooltipCredScore;
+            div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                    
+            div.html("The text on this article is " + Math.abs(d*100).toFixed(2) + "% credible using a " + ((thisObject.currentConfidence=="document")? "document-style analyzer":"sentence-based analyzer."))
+                    .style("left", (d3.event.pageX + 20) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");	
+            
+        })
+        .on("mouseout", function(d){
+            //hide tooltip
+            var div = mp.divTooltipCredScore;
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0);
+        })
     }
     
     mainPanel.prototype.getTargetTextProperty = function(propertyName,listOfValues){

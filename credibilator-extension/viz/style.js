@@ -15,26 +15,39 @@
         this.listOfValuesAllRows = listOfValuesAllRows
         
         var margin = {top: 40, right: 12, bottom: 4, left: 20, secondLeft: 240},
-            width = 580 - margin.left - margin.right,
-            height = 490 - margin.top - margin.bottom;
+            //width = 580 - margin.left - margin.right,
+            width = ($("#thirdMainCol")[0].getBoundingClientRect().right - ($("#thirdMainCol")[0].getBoundingClientRect().left + margin.left + margin.right)),
+            height = 400 - margin.top - margin.bottom;
         
+        this.width = width;
+        this.height = height;
         //In case we want to do it through a selector
         /*this.addSelector(selectionDOM, Object.keys(listOfValuesAllRows), listOfValuesAllRows);*/
         
+        //header feature contribution
+        var insertedDiv = d3.select(selectionDOM).selectAll(".sentenceTitleDiv").data([1]);
+        
+        insertedDiv.enter().append("div")
+        .attr("class","featDistribTitleDiv")
+        .text("Feature distribution");
+        
+        
         var svg = d3.select(selectionDOM).append("svg")
-            .attr("width", width + margin.left + margin.right)
+            .attr("width", width - margin.left - margin.right)
             .attr("height", height + margin.top + margin.bottom)
             
         //header non-credible
         svg.append("text")
-        .attr("x",margin.left)
-        .attr("y",10)        
+        .attr("x",width/4 - (margin.left+margin.right))
+        .attr("y",20)
+        .style("text-anchor","middle")
         .text("Non-credible news");
         
         //header credible
         svg.append("text")
-        .attr("x",margin.secondLeft)
-        .attr("y",10)        
+        .attr("x",3*width/4 - (margin.left+margin.right))
+        .attr("y",20)
+        .style("text-anchor","middle")
         .text("Credible news");
         
         
@@ -90,7 +103,7 @@
     stylePanel.prototype.setTwoColumnBarChart = function(rowHeader,container){
         //
         
-        var margin = {top: 40, right: 12, bottom: 4, left: 20, secondLeft: 240};
+        var margin = {top: 40, right: 12, bottom: 4, left: 20, secondLeft: this.width/2 };//240};
             /*width = 480 - margin.left - margin.right,
             height = 190 - margin.top - margin.bottom;
         
@@ -123,14 +136,26 @@
         
         //Append row header
         var headersToAdd = container.selectAll(".rowHeader").data([0])
-                        .text(rowHeader);;
+        .text(rowHeader);
         
-        headersToAdd.enter().append("text")
+                        
+        container.select(".featureDescription")
+                        .text(featureDescription(rowHeader));
+        
+        var headerAdded = headersToAdd.enter().append("text")
         .attr("class","rowHeader")
         .attr("x",margin.secondLeft - margin.left)
-        .attr("y",10)
+        .attr("y",220+10)
         .style("text-anchor", "middle")
         .text(rowHeader);
+        
+        headersToAdd.enter().append("text")
+        .attr("x",margin.secondLeft - margin.left)
+        .attr("y",220+30)
+        .style("text-anchor", "middle")
+        .attr("class","featureDescription")
+        .text(featureDescription(rowHeader));
+        
         
         //prepare data
         var idNonCredible = 0;
@@ -163,23 +188,28 @@
         })
         listOfValuesCredible.pop();
         //set the two bar charts
-        this.setSingleBarChart(listOfValuesNonCredible, container.select(".leftGroupInRow"), idNonCredible);
-        this.setSingleBarChart(listOfValuesCredible, container.select(".rightGroupInRow"), idCredible);
+        let maxFreqNonCred = d3.max(listOfValuesNonCredible, function(d){
+                            return +d.valuesY;
+                          });
+        let maxFreqCred = d3.max(listOfValuesCredible, function(d){
+                            return +d.valuesY;
+                          });
+        let maxMax = d3.max([maxFreqCred,maxFreqNonCred]);
+        this.setSingleBarChart(listOfValuesNonCredible, container.select(".leftGroupInRow"), idNonCredible, maxMax);
+        this.setSingleBarChart(listOfValuesCredible, container.select(".rightGroupInRow"), idCredible, maxMax);
         
     }
     
-    stylePanel.prototype.setSingleBarChart = function(listOfValues,selectionDOM, idThisDocument){
+    stylePanel.prototype.setSingleBarChart = function(listOfValues,selectionDOM, idThisDocument, maxMax){
                 
         var margin = {top: 20, right: 45, bottom: 20, left: 45},
-            width = 240 - margin.left - margin.right,
+            width = this.width/2 - margin.left - margin.right,
             height = 125 - margin.top - margin.bottom;
         var barGap = 1;
                 
         //define the scales
         var y = d3.scaleLinear()
-                .domain([0, d3.max(listOfValues, function(d){
-                    return +d.valuesY;
-                })])
+                .domain([0, maxMax])
                 .range([height, 0]);
 
         var x = d3.scaleBand()
@@ -200,19 +230,19 @@
             .attr("transform", "translate(0," + height + ")")
             .call(xAxis)
             .selectAll("text")
-            .style("font-size", "8px")
+            .style("font-size", "9px")
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
             .attr("dy", "-.55em")
-            .attr("transform", "rotate(-90)" );
+            .attr("transform", "rotate(-60)" );
         
         xAxisToAdd.transition().call(xAxis)
         .selectAll("text")
-        .style("font-size", "8px")
+        .style("font-size", "9px")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", "-.55em")
-        .attr("transform", "rotate(-90)" );;
+        .attr("transform", "rotate(-60)" );;
 
         var yAxisToAdd = selectionDOM.selectAll(".y.axis").data([0]);
                                     
@@ -247,7 +277,7 @@
                         .ease(d3.easeLinear)
                         .select("title")
                         .text(function(d){
-                            return d.valuesX + " : " + d.valuesY;
+                            return d.valuesX + " : " + d.valuesY.toFixed(2);
                         });
         
         rectanglesToAdd.enter()
@@ -272,7 +302,7 @@
             })
             .append("title")
             .text(function(d){
-                return d.valuesX + " : " + d.valuesY;
+                return d.valuesX + " : " + d.valuesY.toFixed(2);
             });
             
         rectanglesToAdd.exit().remove();

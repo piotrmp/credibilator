@@ -8,7 +8,7 @@
         this.container = selectorDiv;
         
         this.intObj = intObj;
-        this.setListeners();
+        
     }
     
     featureContributionPanel.prototype.setListeners = function(){
@@ -18,28 +18,28 @@
         //listener checkboxes
         $('#reduceFeatureButton').click(function() {
             fcp.reduceFeaturesToShow();
-            if (mp.currentHighlighting=="category"){
-                listOfCategories = showHighlightsCategory(glmDict);
-                mp.setText(listOfCategories);
-            }
-            else{
-                listOfSequences = showHighlightsSequence(glmDict);
-                mp.setText(listOfSequences);
-            }
+            fcp.updateCurrentHighlighting();
         });
         $('#increaseFeatureButton').click(function() {
             fcp.increaseFeaturesToShow();
-            if (mp.currentHighlighting=="category"){
-                listOfCategories = showHighlightsCategory(glmDict);
-                mp.setText(listOfCategories);
-            }
-            else{
-               listOfSequences = showHighlightsSequence(glmDict);
-                mp.setText(listOfSequences);
-            }
+            fcp.updateCurrentHighlighting();
         })
     }
     
+    featureContributionPanel.prototype.updateCurrentHighlighting = function(){
+        if (mp.currentHighlighting=="category"){
+            listOfCategories = showHighlightsCategory(glmDict);
+            mp.setText(listOfCategories);
+        }
+        else if (mp.currentHighlighting=="sequence"){
+            listOfSequences = showHighlightsSequence(glmDict);
+            mp.setText(listOfSequences);
+        }
+        else if (mp.currentHighlighting=="casing"){
+            listOfCasing = showHighlightsCasing(glmDict);
+            mp.setText(listOfCasing);
+        }
+    }
     featureContributionPanel.prototype.setHeaderAndRows = function(listOfValues,selectionDOM,mainPanelObj){
         
         var thisObject = this;
@@ -47,20 +47,52 @@
         this.mainPanelObj = mainPanelObj;
         this.listOfValuesAllRows = listOfValues
         
-        var margin = {top: 40, right: 12, bottom: 4, left: 20},
-            width = 580 - margin.left - margin.right,
-            height = 490 - margin.top - margin.bottom;
+        var margin = {top: 30, right: 12, bottom: 4, left: 20},
+            //width = 580 - margin.left - margin.right,
+            width = ($("#secondMainCol")[0].getBoundingClientRect().right - ($("#secondMainCol")[0].getBoundingClientRect().left + margin.left + margin.right)),
+            height = 300 - margin.top - margin.bottom;
         
-                
+        this.width = width;
+         
+        //header feature contribution
+        var insertedDiv = d3.select(selectionDOM).selectAll(".sentenceTitleDiv").data([1]);
+        
+        insertedDiv.enter().append("div")
+        .attr("class","featContribTitleDiv")
+        .text(thisObject.title);
+        
+        insertedDiv.enter().append("div")
+        .attr("class","featContribSubTitleDiv")
+        .html("Click +/- to add or remove a feature.<br>Click on a bar to inspect feature distribution.");
+        
+        let nestedInsertedDiv = insertedDiv.enter().append("div");
+        
+        nestedInsertedDiv.append("button")
+        .attr("id","increaseFeatureButton")
+        .attr("class", "btn")
+        .style("font-size","x-large")
+        .append("i")
+        .attr("class", "fa fa-plus-circle");
+        
+        nestedInsertedDiv.append("button")
+        .attr("id","reduceFeatureButton")
+        .attr("class", "btn")
+        .style("font-size","x-large")
+        .append("i")
+        .attr("class", "fa fa-minus-circle");
+        
+        this.setListeners();
         var svg = d3.select(selectionDOM).append("svg")
-            .attr("width", width + margin.left + margin.right)
+            .attr("width", width - margin.left - margin.right)
             .attr("height", height + margin.top + margin.bottom)
             
-        //header non-credible
+        
+        /*
         svg.append("text")
         .attr("x",margin.left)
         .attr("y",10)        
         .text(thisObject.title);
+        */
         
             
         //Create row group
@@ -78,7 +110,7 @@
     featureContributionPanel.prototype.setFlexibleColumnBarChart = function(listOfValues,selectionDOM){
                 
         var margin = {top: 20, right: 45, bottom: 20, left: 45},
-            width = 580 - margin.left - margin.right,
+            width = this.width - (margin.right + margin.top),
             totalHeight = 125 - margin.top - margin.bottom;
         var height = totalHeight / 2;
         
@@ -130,19 +162,19 @@
             .attr("transform", "translate(0," + height + ")")
             .call(xAxis)
             .selectAll("text")
-            .style("font-size", "8px")
+            .style("font-size", "9px")
             .style("text-anchor", "end")
-            .attr("dx", -1*height)//"-.8em")
-            .attr("dy", "-.55em")
-            .attr("transform", "rotate(-90)" );
+            //.attr("dx", -1*height)//"-.8em")
+            //.attr("dy", "-.55em")
+            .attr("transform", "translate(0," + (height + 2) + ") rotate(-60)" );
         
         xAxisToAdd.transition().call(xAxis)
         .selectAll("text")
-        .style("font-size", "8px")
+        .style("font-size", "9px")
         .style("text-anchor", "end")
-        .attr("dx", -1*height)//"-.8em")
-        .attr("dy", "-.55em")
-        .attr("transform", "rotate(-90)" );
+        //.attr("dx", -1*height)//"-.8em")
+        //.attr("dy", "-.55em")
+        .attr("transform", "translate(0," + (height + 2) + ") rotate(-60)" );
 
         var yAxisToAdd = selectionDOM.selectAll(".y.axis").data([0]);
                                     

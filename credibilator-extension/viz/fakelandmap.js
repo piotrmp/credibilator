@@ -20,7 +20,19 @@
         }
         
         //get data asap
-        this.getData("random",500,null);    
+        this.getData("random",500,null);  
+
+        var insertedDiv = d3.select(selectorDiv).selectAll(".sentenceMapTitleDiv").data([1]);
+        
+        insertedDiv.enter().append("div")
+        .attr("class","sentenceMapTitleDiv")
+        .text(((mapType=="sentences")?"Sentence ": "Document "  )+ "map");
+        
+        insertedDiv.enter().append("div")
+        .attr("class","sentenceMapSubTitleDiv")
+        .text(function(){
+            return "Drag and drop to zoom in, double-click to zoom-out";
+        });
     }
     
     
@@ -33,12 +45,15 @@
         
         //set margins
         var margin = { top: 20, right: 20, bottom: 30, left: 30 };
-        width = 900 - margin.left - margin.right,
-        height = 480 - margin.top - margin.bottom;
+        
+        var width = ($("#thirdMainCol")[0].getBoundingClientRect().right - ($("#thirdMainCol")[0].getBoundingClientRect().left + margin.left + margin.right))-20;
+        
+        var height = 380 - margin.top - margin.bottom;
         
         //create SVG
         var svg = d3.select(selectionDOM).append("svg")
             .attr("width", width + margin.left + margin.right)
+            //.attr("width", ($(window).width() - ($(selectionDOM)[0].getBoundingClientRect().left + margin.left + margin.right)+"px"))
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -132,17 +147,19 @@
         scatter.selectAll(".dot")
             .data(data)
             .enter().append("circle")
+            .attr("class","dot")
             .attr("fill", function (d,i){
                 if (thisObj.typeOfMap=="sentences"){
                     return thisObj.sentenceCredibleColors(d.predictedSentence);
                 }
                 else{
-                    if (d.documentLabel<=0.5){
-                        return thisObj.credibleColor
+                    /*if (d.documentLabel<=0.5){
+                        return thisObj.credibleColor;
                     }
                     else{
-                        return thisObj.nonCredibleColor
-                    }
+                        return thisObj.nonCredibleColor;
+                    }*/
+                    return thisObj.sentenceCredibleColors(d.predictedDoc);
                 }
             })
             .attr("stroke-width","2px" )
@@ -165,10 +182,12 @@
                 
                 thisObj.divTooltip.html(function(){
                     if (thisObj.typeOfMap=="sentences"){
-                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                        return d.text + "<br/>"  + d.source + " [" + (d.documentLabel==0.0?"credible":"non-credible") + " source]. <br> Sentence predicted as "+ (((1-d.predictedSentence)*100).toFixed(2)) + "% credible.";
+                        //return d.docId +": " + d.text + "<br/>"  + d.source;
                     }
                     else{
-                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                        return d.text + "<br/>"  + d.source + "<br>Published on a " + (d.documentLabel==0.0?"credible":"non-credible")+" source and predicted as "+ (((1-d.predictedDoc)*100).toFixed(2)) + "% credible.";
+                        //return d.docId +": " + d.text + "<br/>"  + d.source;
                     }
                 })
                 .style("left", (d3.event.pageX + 20) + "px")
@@ -188,7 +207,7 @@
                  }
             });
             
-        
+            
         
         this.data = data;
         
@@ -209,6 +228,7 @@
                 zoom();
                 sampleData();
             }
+            
             
         }
 
@@ -238,8 +258,6 @@
                 thisObj.backendObj.backendCall(thisObj.backendObj.fakelandDataURLDocs,dataToPass,thisObj.backendObj.returnZoomedData);
             }
         }
-
-    
     }
     
     mapPanel.prototype.removeZoomedData = function(){
@@ -248,7 +266,7 @@
         .remove();
     }
     
-    mapPanel.prototype.drawZoomedData = function(origZoomData){
+    mapPanel.prototype.drawZoomedData = function(origZoomData, flagNeighbors){
         var thisObj = this;
         var zoomData = origZoomData.filter(function(d){
             return !(thisObj.data.includes(d[thisObj.dataId]));
@@ -258,7 +276,7 @@
         d3.select(thisObj.container).select("#scatterplot").selectAll(".zoomedDots")
             .data(zoomData,function(d){return d[this.dataId]})
             .enter().append("circle")
-            .attr("class","zoomedDots")
+            .attr("class",flagNeighbors?"dot":"zoomedDots")
             .attr("fill", function (d,i){
 /*                if (i==0){
                         console.log(d)
@@ -268,29 +286,30 @@
                     return thisObj.sentenceCredibleColors(d.predictedSentence);
                 }
                 else{
-                    if (d.documentLabel<=0.5){
+                    return thisObj.sentenceCredibleColors(d.predictedDoc);
+                    /*if (d.documentLabel<=0.5){
                         return thisObj.credibleColor
                     }
                     else{
                         return thisObj.nonCredibleColor
-                    }
+                    }*/
                 }
                 
                 //return "black"
             })
             .attr("stroke-width","2px" )
             .attr("stroke", function (d){
-                if (thisObj.typeOfMap=="sentences"){
+                //if (thisObj.typeOfMap=="sentences"){
                     if (d.documentLabel<=0.5){
                         return thisObj.credibleColor
                     }
                     else{
                         return thisObj.nonCredibleColor
                     }
-                }
+                /*}
                 else{
                     return null;
-                }
+                }*/
             })
             .attr("r", 4)
             .attr("cx", function (d) { return thisObj.x(d.projection[0]); })
@@ -302,10 +321,12 @@
                     .style("opacity", .9);		
                 thisObj.divTooltip.html(function(){
                     if (thisObj.typeOfMap=="sentences"){
-                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                        return d.text + "<br/>"  + d.source + " [" + (d.documentLabel==0.0?"credible":"non-credible") + " source]. <br> Sentence predicted as "+ (((1-d.predictedSentence)*100).toFixed(2)) + "% credible.";
+                        //return d.docId +": " + d.text + "<br/>"  + d.source;
                     }
                     else{
-                        return d.docId +": " + d.text + "<br/>"  + d.source;
+                        return d.text + "<br/>"  + d.source + "<br>Published on a " + (d.documentLabel==0.0?"credible":"non-credible")+" source and predicted as "+ (((1-d.predictedDoc)*100).toFixed(2)) + "% credible.";
+                        //return d.docId +": " + d.text + "<br/>"  + d.source;
                     }
                 })
                 .style("left", (d3.event.pageX + 20) + "px")
@@ -346,7 +367,7 @@
         //return randomData(300);
         var thisObj = this;
         dataToPass = {"sampling": sampling , "nSamples": nSamples, "range":range};
-console.log(this.typeOfMap)
+
         if (this.typeOfMap=="sentences"){
 
             this.backendObj.backendCall(thisObj.backendObj.fakelandDataURL,dataToPass,thisObj.backendObj.returnData)
@@ -373,10 +394,10 @@ console.log(this.typeOfMap)
                 return null
             }
         })
-        .attr("r", 6)
+        .attr("r", 8)
         .attr("stroke", "black")
         .attr("stroke-width", "3px")
-        .attr("fill", "yellow");
+        .attr("fill", intObj.glowColor);
     }
     
     mapPanel.prototype.resetAllNeighbors = function(){

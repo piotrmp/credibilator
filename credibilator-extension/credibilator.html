@@ -24,115 +24,85 @@
 <body>
 <!--div class="pull-right"><button type="button" id="settingsButton" class="btn btn-info" style="margin-right: 20px;"><span class="glyphicon glyphicon-cog"></span></button></div-->
 <div class="mainDiv">
-    <h1>Credibilator</h1>
+    <h1>Credibilator
+        <img src="./icon48.png" width="40px">
+        
+    </h1>
+    <div class="custom-control custom-switch" id="mainSwitch" title="Change credibility method">
+          <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
+          <input type="checkbox" class="custom-control-input" disabled id="switchSentenceScore" checked="checked">
+          <label class="custom-control-label active" for="switchSentenceScore">Sentence-based score</label>
+    </div>
     
-    
-    <table style="width:100%">
-        <tr>
-            <td style="width:50%; vertical-align: top;padding:15px" id="leftColumn">
+    <div class="container-fluid" >
+        <div class="row">
+            <div class="col-3">
+            <!--td style="width:50%; vertical-align: top;padding:15px" id="leftColumn"-->
                 <div id="credibilityScore" >
                 </div>
-                <div class="custom-control custom-switch">
-                      <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
-                      <input type="checkbox" class="custom-control-input" disabled id="switchSentenceScore" checked="checked">
-                      <label class="custom-control-label active" for="switchSentenceScore">Sentence-based score</label>
-                </div>
-                <div class="custom-control custom-switch" id="machineViewDiv">
-                      <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
+                
+                <!--div class="custom-control custom-switch" id="machineViewDiv">
                       <input type="checkbox" class="custom-control-input" disabled id="switchMachineView">
                       <label class="custom-control-label" for="switchMachineView">Machine view</label>
+                </div-->
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" id="machineViewDiv">
+                      <label class="btn btn-secondary active">
+                            <input type="radio" name="machineView" id="machineViewOff" autocomplete="off" value="human" checked> Human view
+                          </label>
+                          <label class="btn btn-secondary">
+                            <input type="radio" name="machineView" id="machineViewOn" autocomplete="off" value="machine"> Machine view
+                          </label>
                 </div>
-                <div class="custom-control custom-switch" id="sequenceViewDiv">
-                      <!--label class="custom-control-label" for="customSwitch2">blah!</label-->
+                <div class="btn-group btn-group-toggle" data-toggle="buttons" id="sequenceViewDiv">
+                      
+                      <label class="btn btn-secondary active">
+                            <input type="radio" name="optionHighlighting" id="highlightCategory" autocomplete="off" value="category" checked> Category
+                          </label>
+                          <label class="btn btn-secondary">
+                            <input type="radio" name="optionHighlighting" id="highlightSequence" autocomplete="off" value="sequence"> Sequence
+                          </label>
+                          <label class="btn btn-secondary">
+                            <input type="radio" name="optionHighlighting" id="highlightCasing" autocomplete="off" value="casing"> Casing
+                       </label>
+                </div>
+                <!--div class="custom-control custom-switch" id="sequenceViewDiv">                
                       <input type="checkbox" class="custom-control-input" id="switchSequenceView">
                       <label class="custom-control-label" for="switchSequenceView">Sequence tagging</label>
-                </div>
-                <div id = "modelMsg"></div>
-                <div id = "newsTitle"> </div>
-                <div id= "fullText" style="width: 500px;font-size:8pt;">
-                </div>
-            </td>
-            <td style="width:50%; vertical-align: top" id="rightColumn">
-                <!--div id="visOptions">
-                    <div class="[ form-group ]">
-                        <input type="checkbox" name="fancy-checkbox-style" id="fancy-checkbox-style" autocomplete="off" />
-                        <div class="[ btn-group ]">
-                            <label for="fancy-checkbox-style" class="[ btn btn-default ]">
-                                <span class="[ glyphicon glyphicon-ok ]"></span>
-                                <span> </span>
-                            </label>
-                            <label for="fancy-checkbox-style" class="[ btn btn-default active ]">
-                                Style
-                            </label>
-                        </div>
-                    </div>
-                    <div class="[ form-group ]">
-                        <input type="checkbox" name="fancy-checkbox-words" id="fancy-checkbox-words" autocomplete="off" />
-                        <div class="[ btn-group ]">
-                            <label for="fancy-checkbox-words" class="[ btn btn-default ]">
-                                <span class="[ glyphicon glyphicon-ok ]"></span>
-                                <span> </span>
-                            </label>
-                            <label for="fancy-checkbox-words" class="[ btn btn-default active ]">
-                                Words
-                            </label>
-                        </div>
-                    </div>
-                    <div class="[ form-group ]">
-                        <input type="checkbox" name="fancy-checkbox-sentences" id="fancy-checkbox-sentences" autocomplete="off" />
-                        <div class="[ btn-group ]">
-                            <label for="fancy-checkbox-sentences" class="[ btn btn-warning ]">
-                                <span class="[ glyphicon glyphicon-ok ]"></span>
-                                <span> </span>
-                            </label>
-                            <label for="fancy-checkbox-sentences" class="[ btn btn-default active ]">
-                                Sentences
-                            </label>
-                        </div>
-                    </div>
-                    <div class="[ form-group ]">
-                        <input type="checkbox" name="fancy-checkbox-document" id="fancy-checkbox-document" autocomplete="off" />
-                        <div class="[ btn-group ]">
-                            <label for="fancy-checkbox-document" class="[ btn btn-default ]">
-                                <span class="[ glyphicon glyphicon-ok ]"></span>
-                                <span> </span>
-                            </label>
-                            <label for="fancy-checkbox-document" class="[ btn btn-default active ]">
-                                Document
-                            </label>
-                        </div>
-                    </div>
-                    <div class="[ form-group ]">
-                        <input type="checkbox" name="fancy-checkbox-map" id="fancy-checkbox-map" autocomplete="off" />
-                        <div class="[ btn-group ]">
-                            <label for="fancy-checkbox-map" class="[ btn btn-default ]">
-                                <span class="[ glyphicon glyphicon-ok ]"></span>
-                                <span> </span>
-                            </label>
-                            <label for="fancy-checkbox-map" class="[ btn btn-default active ]">
-                                Map
-                            </label>
-                        </div>
-                    </div>
                 </div-->
-                <div id="visualizationStyle">
+                <div id = "modelMsg"></div>
+                <div id="boundingPanelText">
+                    <div id = "newsTitle"> </div>
+                    <div id= "fullText" style="font-size:8pt;">
+                    </div>
                 </div>
-                <div id="visualizationFeatureContribution">
-                    <button id="increaseFeatureButton" class="btn"><i class="fa fa-plus-circle"></i></button>
-                    <button id="reduceFeatureButton" class="btn"><i class="fa fa-minus-circle"></i></button>
+            </div>
+            <div class="col-9">
+                <div id="selectedSentencePanel">                
                 </div>
-                <div id="visualizationSentences" style="vertical-align:top;font-size:10pt">
+                <div class="row">
+                    <div class="col-6" id="secondMainCol">
+                    <!--td style="width:50%; vertical-align: top" id="rightColumn"-->
+                        
+                        
+                        <div id="visualizationFeatureContribution">
+                        </div>
+                        <div id="visualizationSentences" style="vertical-align:top;font-size:10pt">
+                        </div>
+                        <div id="visualizationDocuments" style="vertical-align:top;font-size:10pt">
+                        </div>                
+                    </div>
+                    <div class="col-6" id="thirdMainCol">
+                        <div id="visualizationMap" style="vertical-align:top;font-size:10pt">
+                        </div>
+                        <div id="visualizationStyle">
+                        </div>
+                        <div id="visualizationMapDocs" style="vertical-align:top;font-size:10pt">
+                        </div>
+                    </div>
                 </div>
-                <div id="visualizationDocuments" style="vertical-align:top;font-size:10pt">
-                </div>
-                <div id="visualizationMap" style="vertical-align:top;font-size:10pt">
-                </div>
-                <div id="visualizationMapDocs" style="vertical-align:top;font-size:10pt">
-                </div>
-            </td>
-
-        </tr>
-    </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -145,6 +115,7 @@
 <script src="./viz/featureContribution.js"></script>
 <script src="./style/glm.js"></script>
 <script src="./style/featureDescs.js"></script>
+<script src="./style/features.js"></script>
 <script src="./viz/main.js"></script>
 
 </html>  

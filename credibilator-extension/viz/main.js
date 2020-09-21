@@ -8,25 +8,31 @@
         this.nonCredibleColor = "red";
         this.credibleColor = "green";
         this.neutralColor = "white";
+        this.glowColor = "yellow";
         this.featuresToShow = 10;
+        
+        this.documentNeighbors = 10;
         
         
         //div names
         
         this.wordsDivId = "#visualizationWords";
-        this.sentencesDivId = "#visualizationSentences";
-        this.documentsDivId = "#visualizationDocuments";
         
+        //docs divs
         this.mapDocsDivId = "#visualizationMapDocs";
         this.styleDivId = "#visualizationStyle";
         this.featureContributionDivId = "#visualizationFeatureContribution";
         this.sequenceTaggingDiv = "#sequenceViewDiv"
+        this.documentTableDivId = "#visualizationDocuments";
         
+        //sentence divs
         this.mapDivId = "#visualizationMap";
         this.machineViewDivId = "#machineViewDiv";
+        this.sentenceTableDivId = "#visualizationSentences";
+        this.selectedSentenceDivId = "#selectedSentencePanel";
         
-        this.documentDivIds = [this.mapDocsDivId, this.styleDivId, this.featureContributionDivId,this.sequenceTaggingDiv];
-        this.sentenceDivIds = [this.mapDivId,this.machineViewDivId];
+        this.documentDivIds = [this.mapDocsDivId, this.styleDivId, this.featureContributionDivId,this.sequenceTaggingDiv,this.documentTableDivId];
+        this.sentenceDivIds = [this.mapDivId,this.machineViewDivId,this.sentenceTableDivId,this.selectedSentenceDivId];
         
         this.visDivIds = [this.styleDivId, this.wordsDivId, this.sentencesDivId, this.documentsDivId, this.mapDivId];
         
@@ -41,12 +47,13 @@
     
     interfaceMethods.prototype.initialize = function(){
         //set some of the element dimensions
-        this.setDimensions();
+        
         
         this.setListeners();
         
         //this.hideAllVis();
         this.hideDocVis();
+        //this.setDimensions();
         
         //set all checkboxes with equal length
         $(".btn.btn-default.active").css("width", "6.5em");
@@ -94,6 +101,7 @@
         d3.select("#fullText")
         .style("height", ($(window).height() - ($("#fullText")[0].getBoundingClientRect().top+thisObject.verticalBottomSpace))+"px")
         .style("overflow","auto");
+        
         
     }
     
@@ -277,10 +285,17 @@ async function handleWordCodes(wordCodes){
     
     mapPanelDocsObj = new mapPanel.mapPanel("#visualizationMapDocs",bec,'documents');
     mp.setMapDocsObject(mapPanelDocsObj);
+    
+    sentPanelObj = new sentencePanel.sentencePanel(intObj.sentenceTableDivId, "sentences");
+    
+    docPanelObj = new sentencePanel.sentencePanel(intObj.documentTableDivId, "documents");
+    
+    getFeatureList();
+    
 }
 
 function stepCallback(i,I,probs,vecs){
-	console.log("Scored "+i+" / "+I + ": " + probs[1]);
+//console.log("Scored "+i+" / "+I + ": " + probs[1]);
     listOfSentences[i]["score"] = probs[1];
     listOfSentences[i]["origVector"] = vecs;
     if (i<I-1){
@@ -322,9 +337,9 @@ async function useModel(model,allcodes,allmasks){
 
 // just for demo, to be replaced by super-fancy visualisation
 function showInterpretableNeural(tokenised,wordCodes,prediction){
-	console.log(prediction);
+//console.log(prediction);
 	let sentenceScores=Array.from(prediction[1]);
-	console.log(sentenceScores);
+//console.log(sentenceScores);
 	let sentenceCoords=Array.from(prediction[2]);
 	let resultHTML="";
 	let i=0;
@@ -379,7 +394,7 @@ async function unpackContainer(container){
         var sentence = {"class":"normal","text":d.join(' '),"score":0}
         listOfSentences.push(sentence);
     })
-console.log(listOfSentences)
+
 
     //create interface object
     intObj = new interfaceMethods.interfaceMethods();
@@ -407,7 +422,7 @@ console.log(listOfSentences)
     readWordCodes("./bilstmavg/data/" + modelName + "/words.txt",handleWordCodes);
     
     interpretClick();    
-    
+    intObj.setDimensions();
     
 
     //textProcessingObject = new textProcessing();
@@ -420,7 +435,7 @@ console.log(listOfSentences)
 }
 
 
-
+/*
 function showLogistic(glmDict,meanDict){
 	let html="<strong>SUM</strong><br/>\n";
 	let features=[];
@@ -490,8 +505,8 @@ function showLogistic(glmDict,meanDict){
 	});
 	chart.render();
 	return(html);
-    */
-}
+    
+}*/
 
 // Style interpretation requested by user
 async function interpretClick(){
@@ -564,6 +579,7 @@ async function saveFeatureOrder(result){
             featureValues.push(0);
         }
 	}
+    mp.getkNNDocs(intObj.documentNeighbors,featureValues);
 }
 
 async function showInterp(result){
@@ -573,6 +589,7 @@ async function showInterp(result){
 	showLogistic(glmDict,meanDict);
 	listOfCategories = showHighlightsCategory(glmDict);
     listOfSequences = showHighlightsSequence(glmDict);
+    listOfCasing = showHighlightsCasing(glmDict);
 }
 
 function showLogistic(glmDict,meanDict){
@@ -595,9 +612,9 @@ function showLogistic(glmDict,meanDict){
 		featuresToVisualize.push(feature)
 		impacts[feature]=featureVal*glmDict[feature];
 		if (feature=="TAG_?_Value_Noun"){
-			console.log(meanDict[feature])
-			console.log(glmDict[feature])
-			console.log(globalContainer.stylometricFeatures[feature])
+//console.log(meanDict[feature])
+//console.log(glmDict[feature])
+//console.log(globalContainer.stylometricFeatures[feature])
 		}
 	}
 	featuresToVisualize.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
@@ -676,7 +693,54 @@ function showHighlightsCategory(glmDict){
 	}
     return(listOfWordsCategory);
 }
-console.log("here")
+
+function showHighlightsCasing(glmDict){
+	let listOfWordsCasing = [];
+    
+	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
+		let sentence=globalContainer.stylometricInterpretation[iS];
+		for (let iT=0;iT<sentence.length;++iT){
+			let token=sentence[iT];
+			let putSpace=true;
+            let textToken = "";
+			if (((iS==0)&&(iT==0))||(iT>0 && sentence[iT-1][1]==-1) || token[1]==1){
+				putSpace=false;
+			}
+			let impactSum=0;
+            let impactScore=0;
+            let include = false;
+            let impactReason=[];
+            let casingId=getCasing(token[0])
+			let featureName=["wordscased","wordsCASED","wordsCased","wordsCaSeD"][casingId]
+            
+			
+            if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(featureName)){
+                impactSum+=glmDict[featureName];
+                impactScore+=impacts[featureName];
+                include = true;
+                impactReason.push(featureName+"&rarr; " +featureDescription(featureName));
+            }
+				
+			
+			//console.log(impactSum);
+            
+			if (putSpace){
+				textToken+=" ";
+			}
+            
+            if (textToken==" "){
+                listOfWordsCasing.push({"text":textToken,"score":0,"class":"normal","reason":impactReason});
+            }
+			if (include){
+				listOfWordsCasing.push({"text":token[0],"score":impactScore / Math.abs(impacts[featuresToVisualize[0]]),"class":"normal","reason":impactReason});
+			}else{
+				listOfWordsCasing.push({"text": token[0],"score":0,"class":"normal","reason":impactReason});
+			}
+		}
+	}
+    return(listOfWordsCasing);
+}
+
 
 function showHighlightsSequence(glmDict){
     let listOfWordsSequence = [];

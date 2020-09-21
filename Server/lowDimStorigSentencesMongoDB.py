@@ -20,14 +20,15 @@ col.create_index([('sentenceId', pymongo.ASCENDING)],unique=True)
 colSentences.drop()
 colSentences.create_index([('sentenceId', pymongo.ASCENDING)],unique=True)
 
-allURLs = [None]*95902
+#allURLs = [None]*95902
+allURLs = {}
 count = 0
 with io.open('../data/corpusSourcesU.tsv','r',encoding='utf-8') as inFile:
     for line2 in inFile:
         if (count >0):
             arrayOfValues2 = line2.split("\t")
             #print(arrayOfValues2)
-            allURLs[int(arrayOfValues2[2])]= arrayOfValues2[4]
+            allURLs[str(arrayOfValues2[1])+str(arrayOfValues2[2])]= arrayOfValues2[4]            
         count = count + 1
 
 
@@ -41,11 +42,11 @@ with io.open("../data/sentencesU.tsv","r",encoding="utf-8") as infileSent:
         arrayOfValues2 = line2.split("\t")
         doc["documentLabel2"] = float(arrayOfValues2[0])
         doc["source"] = arrayOfValues2[1]
-        doc["docId"] = int(arrayOfValues2[2])
+        doc["docId"] = str(arrayOfValues2[1])+str(arrayOfValues2[2])
         doc["offsetInit"] = int(arrayOfValues2[3])
         doc["offsetEnd"] = int(arrayOfValues2[4])
         doc["text"] = arrayOfValues2[5]
-        doc["url"] = allURLs[doc["docId"]]
+        doc["url"] = allURLs[str(arrayOfValues2[1])+str(arrayOfValues2[2])]
         sentenceCount = sentenceCount + 1
         
         colSentences.insert_one(doc)
@@ -90,6 +91,7 @@ with open("../data/redU500k50p.ssv","r") as infileRed:
             doc.update(sentenceDoc)
         else:
             doc["sentenceId"] = sentenceId
+            print("This shouldn't happen")
         try:
             col.insert_one(doc)
         except Exception as e:

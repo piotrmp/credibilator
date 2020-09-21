@@ -58,10 +58,10 @@
         //Regular results
 //console.log(data)
         if (data["type"]=="sentences"){
-            mapPanelObj.drawZoomedData(data["docs_found"])
+            mapPanelObj.drawZoomedData(data["docs_found"],false)
         }
         else{
-            mapPanelDocsObj.drawZoomedData(data["docs_found"])
+            mapPanelDocsObj.drawZoomedData(data["docs_found"],false)
         }
         
         //let the interface know that the search results are ready
@@ -74,20 +74,27 @@
 //console.log(data)
         if (data["type"]=="sentences"){
             //add k neighbors if not present
-            mapPanelObj.drawZoomedData(data["docs_found"]);
+            mapPanelObj.drawZoomedData(data["docs_found"],true);
             
             //highlight k neighbors
-            mapPanelObj.showNeighbors(data["docs_found"]);
+            //Not used now as we are highlighting from the sentece panel only
+            //mapPanelObj.showNeighbors(data["docs_found"]);
+            
+            //show results on table
+            sentPanelObj.setKNearestSentences(data["docs_found"]);
             
             //let the interface know that the search results are ready
             //intObj.showElasticsearchResultsOnScreen(data);
         }
         else{
             //add k neighbors if not present
-            mapPanelDocsObj.drawZoomedData(data["docs_found"]);
+            mapPanelDocsObj.drawZoomedData(data["docs_found"],true);
             
             //highlight k neighbors
-            mapPanelDocsObj.showNeighbors(data["docs_found"]);
+            //mapPanelDocsObj.showNeighbors(data["docs_found"]);
+            
+            //show results on table
+            docPanelObj.setKNearestSentences(data["docs_found"]);
             
         }
     }

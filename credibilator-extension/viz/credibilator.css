@@ -1,9 +1,53 @@
+h1{
+    padding-left: 10px;
+}
+#mainSwitch{
+    margin-left: 15px;
+}
+/*Main panel---------------------------*/
+#credibilityScore{
+    margin-top:10px;
+}
+#machineViewDiv, #sequenceViewDiv{
+    margin-bottom:10px;
+}
+
+#newsTitle{
+    margin-bottom: 10px;
+    font-size: large;
+}
+
+#boundingPanelText{
+    border-color: gray;
+    border-width: 1px;
+    border-style: dashed;
+    border-radius: 10px;
+    padding: 6px;
+    /* height: fit-content;*/
+}
+
+#fullText{
+    text-align: justify;
+}
+/*sentences style-----------------------------------*/
+#targetDiv{
+    margin-top:10px;
+    margin-bottom: 5px;
+}
 /*text span style-----------------------------------*/
 span.wavy {
     text-decoration: red underline wavy;
 }
 span.underlined {
     text-decoration: underline ;
+}
+
+span.normal{
+    border-radius: 3px;
+}
+
+span.quotingTitle{
+    font-style: italic;
 }
 
 /*end text span style*/
@@ -47,10 +91,17 @@ span.underlined {
     margin: 0 auto;
     padding-bottom: 10px;
 }
+.sentenceMapTitleDiv, .featContribTitleDiv, .featDistribTitleDiv{
+    font-size: x-large;
+    width: 50%;
+    margin: 0 auto;
+    padding-bottom: 10px;
+}
 
-.sentenceSubTitleDiv{
+.sentenceSubTitleDiv, .sentenceMapSubTitleDiv, .featContribSubTitleDiv{
     padding-bottom: 9px;
     font-style: italic;
+    font-size: 10pt;
 }
 .sentenceDiv{
     padding-bottom: 10px;
@@ -60,7 +111,7 @@ span.underlined {
 
 /* fakelandmap-----------------------------------*/
 div.tooltip {	
-    position: absolute;			
+    position: fixed;			
     text-align: center;			
     padding: 2px;				
     font: 12px sans-serif;		
