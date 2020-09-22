@@ -95,7 +95,8 @@
             intObj.hideSentenceVis();
             intObj.showDocVis();
             docPanelObj.adjustPanelHeight();
-            
+            //If we want to show all the highlights at the same time
+            /*
             if (this.currentHighlighting=="category"){
                 this.setText(listOfCategories);
             }
@@ -104,7 +105,10 @@
             }
             else if (this.currentHighlighting=="casing"){
                 this.setText(listOfCasing);
-            }
+            }*/
+            //with the highlighting based on the clicked feature
+            fcp.updateCurrentHighlighting("foo");
+            
             sentPanelObj.setKNearestSentences([]);
             sentPanelObj.showTargetSentence("");
         }
@@ -212,7 +216,7 @@
             
             //actions on hovering
             //thisObject.mapObject.showNeighbors(thisObject.getkNN(d,3));
-            $(this).css({"outline": "1px solid blue", "padding" : ".2em .4em"});
+            $(this).css({"outline": "1px solid blue", "padding" : ".2em .0em"});
             
             //show tooltip
             
@@ -385,7 +389,7 @@
                     .duration(200)
                     .style("opacity", .9);
                     
-            div.html("The text on this article is " + Math.abs(d*100).toFixed(2) + "% credible using a " + ((thisObject.currentConfidence=="document")? "document-style analyzer":"sentence-based analyzer."))
+            div.html("The text on this article is " + Math.abs(d*100).toFixed(2) + "% credible using a " + ((thisObject.currentConfidence=="document")? "stylometric analyzer":"neural-based analyzer."))
                     .style("left", (d3.event.pageX + 20) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");	
             

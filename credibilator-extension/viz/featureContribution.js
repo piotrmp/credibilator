@@ -18,25 +18,29 @@
         //listener checkboxes
         $('#reduceFeatureButton').click(function() {
             fcp.reduceFeaturesToShow();
-            fcp.updateCurrentHighlighting();
+            //fcp.updateCurrentHighlighting();
         });
         $('#increaseFeatureButton').click(function() {
             fcp.increaseFeaturesToShow();
-            fcp.updateCurrentHighlighting();
+            //fcp.updateCurrentHighlighting();
         })
     }
     
-    featureContributionPanel.prototype.updateCurrentHighlighting = function(){
-        if (mp.currentHighlighting=="category"){
-            listOfCategories = showHighlightsCategory(glmDict);
+    featureContributionPanel.prototype.updateCurrentHighlighting = function(targetFeature){
+        
+        //if (mp.currentHighlighting=="category"){
+        if (targetFeature.substring(0,3)=="cat"){
+            listOfCategories = showHighlightsCategory(glmDict,targetFeature);
             mp.setText(listOfCategories);
         }
-        else if (mp.currentHighlighting=="sequence"){
-            listOfSequences = showHighlightsSequence(glmDict);
+        //else if (mp.currentHighlighting=="sequence"){
+        else if (targetFeature.substring(0,3)=="TAG"){
+            listOfSequences = showHighlightsSequence(glmDict,targetFeature);
             mp.setText(listOfSequences);
         }
-        else if (mp.currentHighlighting=="casing"){
-            listOfCasing = showHighlightsCasing(glmDict);
+        //else if (mp.currentHighlighting=="casing"){
+        else{
+            listOfCasing = showHighlightsCasing(glmDict,targetFeature);
             mp.setText(listOfCasing);
         }
     }
@@ -51,6 +55,7 @@
             //width = 580 - margin.left - margin.right,
             width = ($("#secondMainCol")[0].getBoundingClientRect().right - ($("#secondMainCol")[0].getBoundingClientRect().left + margin.left + margin.right)),
             height = 300 - margin.top - margin.bottom;
+        
         
         this.width = width;
          
@@ -84,7 +89,8 @@
         this.setListeners();
         var svg = d3.select(selectionDOM).append("svg")
             .attr("width", width - margin.left - margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("height", height + margin.top + margin.bottom);
+            
             
         
         /*
@@ -116,6 +122,8 @@
         
         var barGap = 1;
         
+        var newLeftMargin = 30;
+        
         var thisObj = this;
                 
         //define the scales
@@ -139,7 +147,7 @@
 
         var x = d3.scaleBand()
                 .domain(listOfValues.map(function(d){ return d.label;}))
-                .range([0, width]);
+                .range([newLeftMargin, width]);
 
                 
         //variables for the textual area
@@ -162,26 +170,27 @@
             .attr("transform", "translate(0," + height + ")")
             .call(xAxis)
             .selectAll("text")
-            .style("font-size", "9px")
+            .style("font-size", "12px")
             .style("text-anchor", "end")
             //.attr("dx", -1*height)//"-.8em")
             //.attr("dy", "-.55em")
-            .attr("transform", "translate(0," + (height + 2) + ") rotate(-60)" );
+            .attr("transform", "translate(0," + (height + 2) + ") rotate(-45)" );
         
         xAxisToAdd.transition().call(xAxis)
         .selectAll("text")
-        .style("font-size", "9px")
+        .style("font-size", "12px")
         .style("text-anchor", "end")
         //.attr("dx", -1*height)//"-.8em")
         //.attr("dy", "-.55em")
-        .attr("transform", "translate(0," + (height + 2) + ") rotate(-60)" );
+        .attr("transform", "translate(0," + (height + 2) + ") rotate(-45)" );
 
         var yAxisToAdd = selectionDOM.selectAll(".y.axis").data([0]);
                                     
         
         yAxisToAdd.enter().append("g")
             .attr("class", "y axis")
-            .call(yAxis);
+            .call(yAxis)
+            .attr("transform", "translate(" + newLeftMargin + ",0)");
             
         yAxisToAdd.transition().ease(d3.easeLinear).call(yAxis);
 
@@ -190,7 +199,7 @@
         
         rectanglesToAdd.attr("class","normalBar")
                         .transition()
-                        .attr("width", width/listOfValues.length - barGap)
+                        .attr("width", (width - newLeftMargin)/listOfValues.length - barGap)
                         .attr("height", function(d){
                             if (+d.y>0){
                                 return height - y(+d.y);
@@ -200,7 +209,7 @@
                             }
                         })
                         .attr("x", function(d, i){
-                            return (width / listOfValues.length) * i ;
+                            return x(d.label);//30+ (width / listOfValues.length) * i ;
                         })
                         .attr("y", function(d){
                             if (+d.y>0){
@@ -216,12 +225,12 @@
                         .ease(d3.easeLinear)
                         .select("title")
                         .text(function(d){
-                            return d.label + " : " + d.y;
+                            return d.label + " : " + (d.y).toFixed(2);
                         });
         
         rectanglesToAdd.enter()
             .append("rect")
-            .attr("width", width/listOfValues.length - barGap)
+            .attr("width", (width- newLeftMargin)/listOfValues.length - barGap)
             .attr("height", function(d){
                 if (+d.y>0){
                     return height - y(+d.y);
@@ -231,7 +240,7 @@
                 }
             })
             .attr("x", function(d, i){
-                return (width / listOfValues.length) * i ;
+                return x(d.label);//30+(width / listOfValues.length) * i ;
             })
             .attr("y", function(d){
                 if (+d.y>0){
@@ -246,11 +255,14 @@
                 return thisObj.featureCredibleColors(+d.y);
             })
             .on("mousedown",function(d){
-                sp.reDrawFirstRow(d.label);
+                if (d.label!="OTHER"){
+                    sp.reDrawFirstRow(d.label);
+                    thisObj.updateCurrentHighlighting(d.label);
+                }
             })
             .append("title")
             .text(function(d){
-                return d.label + " : " + d.y;
+                return d.label + " : " + (d.y).toFixed(2);
             });
             
         rectanglesToAdd.exit().remove();

@@ -587,9 +587,9 @@ async function showInterp(result){
 	let meanDict=result[1];
 	
 	showLogistic(glmDict,meanDict);
-	listOfCategories = showHighlightsCategory(glmDict);
-    listOfSequences = showHighlightsSequence(glmDict);
-    listOfCasing = showHighlightsCasing(glmDict);
+	//listOfCategories = showHighlightsCategory(glmDict);
+    //listOfSequences = showHighlightsSequence(glmDict);
+    //listOfCasing = showHighlightsCasing(glmDict);
 }
 
 function showLogistic(glmDict,meanDict){
@@ -606,11 +606,11 @@ function showLogistic(glmDict,meanDict){
 			featureVal=globalContainer.stylometricFeatures[feature];
 		}
 		//if (feature.startsWith("mean")){
-			featureVal-=meanDict[feature];
-			intercept+=meanDict[feature]*glmDict[feature];
+			//featureVal-=meanDict[feature];
+			//intercept+=meanDict[feature]*glmDict[feature];
 		//}
 		featuresToVisualize.push(feature)
-		impacts[feature]=featureVal*glmDict[feature];
+		impacts[feature]=featureVal*glmDict[feature]+intercept;
 		if (feature=="TAG_?_Value_Noun"){
 //console.log(meanDict[feature])
 //console.log(glmDict[feature])
@@ -639,11 +639,11 @@ function getNFeatures(n){
 	for (let feature of featuresToVisualize.slice(n-1)){
 		remainder+=impacts[feature];
 	}
-	chartData.push({label:"OTHER",y:-remainder});
+	//chartData.push({label:"OTHER",y:-remainder});
 	
 }
 
-function showHighlightsCategory(glmDict){
+function showHighlightsCategory(glmDict, targetFeature){
 	let listOfWordsCategory = [];
     
 	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
@@ -667,12 +667,22 @@ function showHighlightsCategory(glmDict){
 					cat="catGI"+cat;
                     
 					//if (cat in (featuresToVisualize.slice(0,intObj.featuresToShow-1))){
-					if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(cat)){
-						impactSum+=glmDict[cat];
-						impactScore+=impacts[cat];
-                        include = true;
-                        impactReason.push(token[2][iL][0]+"&rarr; "+cat+": "+featureDescription(cat));
-					}
+                    if (targetFeature!=null){
+                        if (cat==targetFeature){
+                            impactSum+=glmDict[cat];
+                            impactScore+=impacts[cat];
+                            include = true;
+                            impactReason.push(token[2][iL][0]+"&rarr; "+cat+": "+featureDescription(cat));
+                        }
+                    }
+                    else{
+                        if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(cat)){
+                            impactSum+=glmDict[cat];
+                            impactScore+=impacts[cat];
+                            include = true;
+                            impactReason.push(token[2][iL][0]+"&rarr; "+cat+": "+featureDescription(cat));
+                        }
+                    }
 				}
 			}
 			//console.log(impactSum);
@@ -694,7 +704,7 @@ function showHighlightsCategory(glmDict){
     return(listOfWordsCategory);
 }
 
-function showHighlightsCasing(glmDict){
+function showHighlightsCasing(glmDict, targetFeature){
 	let listOfWordsCasing = [];
     
 	for (let iS=0;iS<globalContainer.stylometricInterpretation.length;++iS){
@@ -714,11 +724,22 @@ function showHighlightsCasing(glmDict){
 			let featureName=["wordscased","wordsCASED","wordsCased","wordsCaSeD"][casingId]
             
 			
-            if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(featureName)){
-                impactSum+=glmDict[featureName];
-                impactScore+=impacts[featureName];
-                include = true;
-                impactReason.push(featureName+"&rarr; " +featureDescription(featureName));
+            
+            if (targetFeature!=null){
+                    if (featureName==targetFeature){
+                        impactSum+=glmDict[featureName];
+                        impactScore+=impacts[featureName];
+                        include = true;
+                        impactReason.push(featureName+"&rarr; " +featureDescription(featureName));
+                    }
+            }
+            else{
+                if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(featureName)){
+                    impactSum+=glmDict[featureName];
+                    impactScore+=impacts[featureName];
+                    include = true;
+                    impactReason.push(featureName+"&rarr; " +featureDescription(featureName));
+                }
             }
 				
 			
@@ -742,7 +763,7 @@ function showHighlightsCasing(glmDict){
 }
 
 
-function showHighlightsSequence(glmDict){
+function showHighlightsSequence(glmDict,targetFeature){
     let listOfWordsSequence = [];
     
 	
@@ -767,22 +788,43 @@ function showHighlightsSequence(glmDict){
 			for (let tag of token[3]){
 				let tag2="TAG_"+tag;
 				//if (tag2 in glmDict && (glmDict[tag2]>IMPACT_THRS_TAG || glmDict[tag2]<-IMPACT_THRS_TAG)){
-                if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(tag2)){
-					let tagLen=(tag.match(/_/g) || []).length+1;
-					symbol=tag;
-                    symbolObject["score"]+= impacts[tag2]; 
-                    symbolObject["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
-					if (tagLen>=2){
-						symbols[iT-1]=tag;
-                        listOfWordsSequence[listOfWordsSequence.length-1]["score"] +=impacts[tag2];
-                        listOfWordsSequence[listOfWordsSequence.length-1]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
-						if (tagLen>=3){
-							symbols[iT-2]=tag;
-                            listOfWordsSequence[listOfWordsSequence.length-2]["score"] +=impacts[tag2];
-                            listOfWordsSequence[listOfWordsSequence.length-2]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
-						}
-					}
-				}
+                 
+                if (targetFeature!=null){
+                    if (tag2==targetFeature){
+                        let tagLen=(tag.match(/_/g) || []).length+1;
+                        symbol=tag;
+                        symbolObject["score"]+= impacts[tag2]; 
+                        symbolObject["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+                        if (tagLen>=2){
+                            symbols[iT-1]=tag;
+                            listOfWordsSequence[listOfWordsSequence.length-1]["score"] +=impacts[tag2];
+                            listOfWordsSequence[listOfWordsSequence.length-1]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+                            if (tagLen>=3){
+                                symbols[iT-2]=tag;
+                                listOfWordsSequence[listOfWordsSequence.length-2]["score"] +=impacts[tag2];
+                                listOfWordsSequence[listOfWordsSequence.length-2]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+                            }
+                        }
+                    }
+                }
+                else{
+                    if ((featuresToVisualize.slice(0,intObj.featuresToShow-1)).includes(tag2)){
+                        let tagLen=(tag.match(/_/g) || []).length+1;
+                        symbol=tag;
+                        symbolObject["score"]+= impacts[tag2]; 
+                        symbolObject["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+                        if (tagLen>=2){
+                            symbols[iT-1]=tag;
+                            listOfWordsSequence[listOfWordsSequence.length-1]["score"] +=impacts[tag2];
+                            listOfWordsSequence[listOfWordsSequence.length-1]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+                            if (tagLen>=3){
+                                symbols[iT-2]=tag;
+                                listOfWordsSequence[listOfWordsSequence.length-2]["score"] +=impacts[tag2];
+                                listOfWordsSequence[listOfWordsSequence.length-2]["reason"].push("TAG_" + tag+"&rarr; "+featureDescription("TAG_" + tag));
+                            }
+                        }
+                    }
+                }
 			}
 			symbols.push(symbol);
             listOfWordsSequence.push(symbolObject);

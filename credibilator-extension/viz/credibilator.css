@@ -1,12 +1,15 @@
+
 h1{
     padding-left: 10px;
+    margin-bottom: 20px;
 }
 #mainSwitch{
     margin-left: 15px;
+    display:inline;
 }
 /*Main panel---------------------------*/
 #credibilityScore{
-    margin-top:10px;
+    margin-top:20px;
 }
 #machineViewDiv, #sequenceViewDiv{
     margin-bottom:10px;
@@ -146,5 +149,52 @@ div.tooltip {
 .form-group input[type="checkbox"]:checked + .btn-group > label span:last-child {
     display: none;   
 }
+
+/*Change following https://stackoverflow.com/questions/55593229/increasing-the-size-of-a-bootstrap-checkbox @zemunkh */
+
+.custom-switch {
+  padding-left: 2.25rem;
+  padding-bottom: 1rem; 
+}
+
+.custom-control-label { 
+  padding-top: 0.5rem;
+  padding-left: 2rem;
+  padding-bottom: 0.1rem;
+  font-size: 14pt;
+  display: inherit;
+}
+
+.custom-switch .custom-control-label::before {
+  left: -2.25rem;
+  height: 2rem;
+  width: 3.5rem;    
+  pointer-events: all;
+  border-radius: 1rem;
+}
+
+.custom-switch .custom-control-label::after {
+  top: calc(0.25rem + 2px);
+  left: calc(-2.25rem + 2px);
+  width: calc(2rem - 4px);
+  height: calc(2rem - 4px);
+  background-color: #adb5bd;
+  border-radius: 2rem; 
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-transform 0.15s ease-in-out;
+  transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-transform 0.15s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .custom-switch .custom-control-label::after {
+    transition: none;
+  }
+}
+
+.custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+  background-color: #fff;
+  -webkit-transform: translateX(1.5rem);
+  transform: translateX(1.5rem); 
+}
+
 
 /*end checkboxes*/
