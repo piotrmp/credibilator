@@ -606,11 +606,11 @@ function showLogistic(glmDict,meanDict){
 			featureVal=globalContainer.stylometricFeatures[feature];
 		}
 		//if (feature.startsWith("mean")){
-			//featureVal-=meanDict[feature];
-			//intercept+=meanDict[feature]*glmDict[feature];
+        featureVal-=meanDict[feature];
+        intercept+=meanDict[feature]*glmDict[feature];
 		//}
 		featuresToVisualize.push(feature)
-		impacts[feature]=featureVal*glmDict[feature]+intercept;
+		impacts[feature]=featureVal*glmDict[feature];//+intercept;
 		if (feature=="TAG_?_Value_Noun"){
 //console.log(meanDict[feature])
 //console.log(glmDict[feature])
@@ -639,7 +639,7 @@ function getNFeatures(n){
 	for (let feature of featuresToVisualize.slice(n-1)){
 		remainder+=impacts[feature];
 	}
-	//chartData.push({label:"OTHER",y:-remainder});
+	chartData.push({label:"OTHER",y:-remainder});
 	
 }
 
