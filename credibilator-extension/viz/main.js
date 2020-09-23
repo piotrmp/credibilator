@@ -617,12 +617,42 @@ function showLogistic(glmDict,meanDict){
 //console.log(globalContainer.stylometricFeatures[feature])
 		}
 	}
-	featuresToVisualize.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+	//featuresToVisualize.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+	reorderFeatures();
     
     getNFeatures(intObj.featuresToShow);
     fcp.setHeaderAndRows(chartData,fcp.container,mp);
 	
 }
+
+function reorderFeatures(){
+	let featuresPos=[]
+	let featuresNeg=[]
+	let total=0
+	for (let feature of featuresToVisualize){
+		if (impacts[feature]>0){
+			featuresPos.push(feature)
+		}else{
+			featuresNeg.push(feature)
+		}
+		total=total+impacts[feature]
+	}
+	featuresPos.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+	featuresNeg.sort(function(a, b){return Math.abs(impacts[b])-Math.abs(impacts[a])});
+	featuresToVisualize=[]
+	while(featuresToVisualize.length<featuresPos.length+featuresNeg.length){
+		let feature=null
+		if (total>0){
+			feature=featuresPos.splice(0,1)[0]
+		}else{
+			feature=featuresNeg.splice(0,1)[0]
+		}
+		total=total-impacts[feature]
+		featuresToVisualize.push(feature)
+	}
+	//console.log(featuresToVisualize)
+}
+
 function getNFeatures(n){
     chartData=[];
 	for (let feature of featuresToVisualize.slice(0,n-1)){
