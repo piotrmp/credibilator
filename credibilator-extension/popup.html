@@ -4,8 +4,25 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <style type="text/css">
 body {
-  min-width: 200px;
+  min-width: 300px;
   min-height: 100px;
+  padding: 10px;
+}
+#mainTextPopup{
+    font-size: larger;
+    font-weight: 600;
+}
+button{
+    margin-left: 40px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    min-width: 80px;
+}
+
+#judgement{
+    min-height:40px;
+    display: flex;
+    align-items: center;
 }
 </style>
 </head>
@@ -19,9 +36,11 @@ body {
 	<script src="style/javascript-lemmatizer/bower_components/underscore/underscore.js"></script>
 	<script src="style/javascript-lemmatizer/js/lemmatizer.js"></script>
 	<script src="popup.js"></script>
-	<h3>The text on this page is...</h3>
-	<p id="judgement"><img src="./img/831.gif" /></p>
-	<button disabled id="whybutton">Why?</button>
-    <button id="visualWhyButton" type="button" class="btn btn-warning">Why?</button>
+	<div id="mainTextPopup">The text on this page is...</div>
+	<div id="judgement"><img height="40px" src="./img/giphy.gif" /></div>
+	<!--button disabled id="whybutton">Why?</button-->
+    <div>Why?</div>
+    <button id="visualWhyButtonStyle" type="button" class="btn btn-info">Style</button>
+    <button id="visualWhyButton" type="button" class="btn btn-info">Neural</button>
 </body>
 </html>

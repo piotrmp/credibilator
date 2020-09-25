@@ -25,7 +25,14 @@ allURLs = [None]*95900
 docLabels = [None]*95900
 sources = [None]*95900
 titles = [None]*95900
+predictedDoc = []
 count = 0
+
+with io.open('../data/reclassification.tsv','r',encoding='utf-8') as inFile:
+    for line2 in inFile:
+        predictedDoc.append(float(line2))
+
+
 with io.open('../data/metadata.tsv','r',encoding='utf-8') as inFile:
     for line2 in inFile:
         if (count >0):
@@ -108,7 +115,7 @@ with open("../data/styleU50pSfixC.ssv","r") as infileRed:
         
         doc["projection"] = [transformValue(float(arrayOfValues[0]),min1,max1,-90,180), transformValue(float(arrayOfValues[1]),min2,max2,-180,360)]
         docId = counter
-        doc["predictedDoc"] = float(arrayOfValues[2])
+        doc["predictedDoc"] = predictedDoc[counter]
         doc["documentLabel"] = docLabels[counter]
         doc["docId"] = counter
         doc["text"] = titles[counter]

@@ -195,10 +195,14 @@
             return d.class;})
         .style("background-color",function(d){
             if (d.score>0){
-                return thisObject.scaleNonCredibleTextHighlightColor(d.score);
+                let c = d3.color(thisObject.scaleNonCredibleTextHighlightColor(d.score))
+                c.opacity = 0.8;
+                return c;
             }
             else{
-                return thisObject.scaleCredibleTextHighlightColor(Math.abs(d.score));
+                let c = d3.color(thisObject.scaleCredibleTextHighlightColor(Math.abs(d.score)));
+                c.opacity = 0.8;
+                return c;
             }
         })
         .html(function(d){
@@ -210,34 +214,36 @@
             }
         })
         .on("mouseover", function(d,i){
-            //reset any previous hovering
-            //thisObject.mapObject.resetAllNeighbors();
-            $("span").css({"outline": "0px solid blue", "padding" : ".0em .0em"});
+            
             
             //actions on hovering
             //thisObject.mapObject.showNeighbors(thisObject.getkNN(d,3));
             $(this).css({"outline": "1px solid blue", "padding" : ".2em .0em"});
             
             //show tooltip
+            if (!((thisObject.currentConfidence=="document")&&(d.reason.length == 0))){
+                var div = mp.divTooltip;
+                
+                div.transition()
+                .duration(200)
+                .style("opacity", .9);
             
-            var div = mp.divTooltip;
-            div.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                    
-            div.html(function(){
-                if (thisObject.currentConfidence=="document"){
-                    return d.reason.join("<br/>")
-                }
-                else{
-                    return "Predicted sentence credibility: " +((1-d.score)*100).toFixed(2) + "%"
-                }
-            })
-            .style("left", (d3.event.pageX + 20) + "px")
-            .style("top", (d3.event.pageY - 28) + "px");	
-            
+                div.html(function(){
+                    if (thisObject.currentConfidence=="document"){
+                        return d.reason.join("<br/>")
+                    }
+                    else{
+                        return "Predicted sentence credibility: " +((1-d.score)*100).toFixed(2) + "%"
+                    }
+                })
+                .style("left", (d3.event.pageX + 20) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");	
+            }
         })
         .on("mouseout", function(d,i){
+            //reset any previous hovering
+            //thisObject.mapObject.resetAllNeighbors();
+            $("span").css({"outline": "0px solid blue", "padding" : ".0em .0em"});
             
             //hide tooltip
             var div = mp.divTooltip;
@@ -256,9 +262,9 @@
         selectedSpan.exit().remove();
     }
     
-    mainPanel.prototype.getkNN = function(datum, k){
+    mainPanel.prototype.getkNN = function(datum, k, listOfIndices){
         mapPanelObj.resetAllNeighbors();
-        dataToPass = {"n": k , "query": datum.origVector};
+        dataToPass = {"n": k , "query": datum.origVector, "ixs": listOfIndices};
         bec.backendCall(bec.fakelandDataURLkNeigh,dataToPass,bec.returnKNeighbors);
     }
     

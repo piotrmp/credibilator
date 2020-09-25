@@ -99,10 +99,14 @@
         .attr("class","sentenceDiv")
         .html(function(d,i){
             if (thisObject.title == "sentences"){
-               spanTextClass = (d.predictedSentence < 0.5)? "credibleSentenceSpan" : "nonCredibleSentenceSpan";
+               spanTextClass = "blackSentenceSpan";
+               //spanTextClass = (d.documentLabel < 0.5)? "credibleSentenceSpan" : "nonCredibleSentenceSpan";
+               //spanTextClass = (d.predictedSentence < 0.5)? "credibleSentenceSpan" : "nonCredibleSentenceSpan";
             }
             else{
-                spanTextClass = (d.predictedDoc < 0.5)? "credibleSentenceSpan" : "nonCredibleSentenceSpan";
+                spanTextClass = "blackSentenceSpan";
+                //spanTextClass = (d.documentLabel < 0.5)? "credibleSentenceSpan" : "nonCredibleSentenceSpan";
+                //spanTextClass = (d.predictedDoc < 0.5)? "credibleSentenceSpan" : "nonCredibleSentenceSpan";
             }
             var spanText = '<span class="' + spanTextClass + '">'+ (i+1).toString() +'- '+ d.text + '</span>';
             var spanSourceClass = (d.documentLabel==0.0)? "credibleSourceSpan" : "nonCredibleSourceSpan";

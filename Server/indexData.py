@@ -78,7 +78,7 @@ def indexEverythingDocs():
                 lst = list(map(float,lst))
                 v = np.array(lst)
 
-                engine.store_vector(v, 'data_%d' % count)
+                engine.store_vector(v, 'data_%d' % (count-1))
             count = count + 1
             if ((count % 10000) ==0):
                 print(count, file=sys.stderr)

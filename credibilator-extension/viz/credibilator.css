@@ -73,6 +73,9 @@ span.quotingTitle{
 /*end style barchart*/
 
 /*sentences style-----------------------------------*/
+.blackSentenceSpan{
+    color: black;
+}
 .credibleSentenceSpan{
     color: green;
 }

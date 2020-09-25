@@ -60,11 +60,14 @@ function score(content){
 	container['stylometricFeatures']=features;
 	container['stylometricInterpretation']=interpretation;
 	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible";
-	document.getElementById("whybutton").addEventListener("click", whyClick);
-	document.getElementById("whybutton").disabled=false
+	//document.getElementById("whybutton").addEventListener("click", whyClick);
+	//document.getElementById("whybutton").disabled=false
     
     
-	document.getElementById("visualWhyButton").addEventListener("click", visualWhyClick);
+	document.getElementById("visualWhyButtonStyle").addEventListener("click", visualWhyClickStyle);
+	document.getElementById("visualWhyButtonStyle").disabled=false
+    
+    document.getElementById("visualWhyButton").addEventListener("click", visualWhyClick);
 	document.getElementById("visualWhyButton").disabled=false
 }
 
@@ -76,8 +79,21 @@ function whyClick(){
 }
 
 // user clicked the button...
+function visualWhyClickStyle(){
+	// pass on the message to background script
+    container.buttonType = "visualStyle"
+    if (window.event.ctrlKey) {
+        container.buttonType = "nonVisual"
+    }
+    
+	chrome.runtime.sendMessage(container,function(response) {});
+}
+
 function visualWhyClick(){
 	// pass on the message to background script
-	container.buttonType = "visual"
+    container.buttonType = "visual"
+    if (window.event.ctrlKey) {
+        container.buttonType = "nonVisual"
+    }	
 	chrome.runtime.sendMessage(container,function(response) {});
 }

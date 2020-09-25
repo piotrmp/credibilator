@@ -286,11 +286,17 @@ async function handleWordCodes(wordCodes){
     mapPanelDocsObj = new mapPanel.mapPanel("#visualizationMapDocs",bec,'documents');
     mp.setMapDocsObject(mapPanelDocsObj);
     
+    
+        
     sentPanelObj = new sentencePanel.sentencePanel(intObj.sentenceTableDivId, "sentences");
     
     docPanelObj = new sentencePanel.sentencePanel(intObj.documentTableDivId, "documents");
     
     getFeatureList();
+    
+    if (globalContainer.buttonType=="visualStyle"){
+        mp.switchConfidence();
+    }
     
 }
 
@@ -302,7 +308,11 @@ function stepCallback(i,I,probs,vecs){
         listOfSentences[i+1]["class"] = "wavy";
     }
     listOfSentences[i]["class"] = "normal";
-    mp.setText(listOfSentences);
+    
+    //This is for the user study in case they are checking the stylometric only
+    if (globalContainer.buttonType!="visualStyle"){
+        mp.setText(listOfSentences);
+    }
 }
 
 // once everything is finished, visualise
@@ -311,7 +321,10 @@ function endCallback(prediction){
     $("#switchMachineView").removeAttr("disabled");
     
     //listOfSentences[listOfSentences.length-1]["class"] = "normal";
-    mp.setText(listOfSentences);
+    //This is for the user study in case they are checking the stylometric only
+    if (globalContainer.buttonType!="visualStyle"){
+        mp.setText(listOfSentences);
+    }
 	let overallScore=Array.from(prediction[0]);
 	let predR=overallScore[0];
 	let predF=overallScore[1];
@@ -319,7 +332,11 @@ function endCallback(prediction){
     mp.setSentenceConfidence(predR);
     mp.setCredibleBar(mp.sentenceConfidence);
 	showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
-    mp.setText(listOfSentences);
+    
+    //This is for the user study in case they are checking the stylometric only
+    if (globalContainer.buttonType!="visualStyle"){
+        mp.setText(listOfSentences);
+    }
 }
 
 
@@ -579,7 +596,8 @@ async function saveFeatureOrder(result){
             featureValues.push(0);
         }
 	}
-    mp.getkNNDocs(intObj.documentNeighbors,featureValues);
+    var indexTop10 = featuresToVisualize.slice(0,9).map(function(d,i){return featureList.indexOf(d)});
+    mp.getkNNDocs(intObj.documentNeighbors,featureValues, indexTop10);
 }
 
 async function showInterp(result){
@@ -669,7 +687,7 @@ function getNFeatures(n){
 	for (let feature of featuresToVisualize.slice(n-1)){
 		remainder+=impacts[feature];
 	}
-	chartData.push({label:"OTHER",y:-remainder});
+	//chartData.push({label:"OTHER",y:-remainder});
 	
 }
 
@@ -697,8 +715,8 @@ function showHighlightsCategory(glmDict, targetFeature){
 					cat="catGI"+cat;
                     
 					//if (cat in (featuresToVisualize.slice(0,intObj.featuresToShow-1))){
-                    if (targetFeature!=null){
-                        if (cat==targetFeature){
+                    if ((targetFeature!=null)){
+                        if ((cat==targetFeature)&&(!include)){
                             impactSum+=glmDict[cat];
                             impactScore+=impacts[cat];
                             include = true;

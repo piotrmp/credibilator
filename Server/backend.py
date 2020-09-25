@@ -61,10 +61,10 @@ def api_getDataDocsAll():
     
     if range==None:
         if sampling == 'random':
-            myresults = list(colDocs.find({},{"_id":0}).limit(nSamples))
+            myresults = list(colDocs.find({},{"_id":0}).sort([("random",1)]).limit(nSamples))
     else:
         if sampling == 'random':
-            myresults = list(colDocs.find({"projection": {"$within": {"$box": range}}},{"_id":0}).sort([("docId",1)]).limit(nSamples))
+            myresults = list(colDocs.find({"projection": {"$within": {"$box": range}}},{"_id":0}).sort([("random",1)]).limit(nSamples))
     
     cgi_result={'docs_found':myresults,'type':'documents'}
     js = json.dumps(cgi_result)
@@ -77,13 +77,16 @@ def retrieveNeighborsId():
     v = np.array(data["query"])
     #v = data["query"] 
     n = data["n"] if "n" in data else 3
+    
 
     neighbors = engine.neighbours(v)
     count = 0
     result = []
+    
     for neighbor in neighbors:
         count = count + 1
         result.append(int(neighbor[1].split("_")[1]))
+
         if n==count:
             break
     
@@ -100,16 +103,27 @@ def retrieveNeighborsDocsId():
     v = np.array(data["query"])
     #v = data["query"] 
     n = data["n"] if "n" in data else 3
+    importantIxs = data["ixs"] if "ixs" in data else None
 
     neighbors = engineDocs.neighbours(v)
     count = 0
     result = []
+    if (importantIxs!=None):
+        reducedVectors = []
+        reducedQuery = [query[i] for i in importantIxs]
+        
     for neighbor in neighbors:
         count = count + 1
         result.append(int(neighbor[1].split("_")[1]))
-        if n==count:
-            break
+        if (importantIxs!=None):
+            reducedVectors.append([neighbor[0][i] for i in importantIxs]) 
+        if (importantIxs==None):
+            if n==count:
+                break
     
+    if (importantIxs!=None):
+        distances = [np.linalg.norm(np.asarray(reducedQuery) - np.asarray(reducedTarget)) for reducedTarget in reducedVectors]
+        result = [x for _, x in sorted(zip(distances,result),key=lambda pair: pair[0])][:n]
     myresults = list(colDocs.find({"docId":{"$in":result}},{"_id":0}))
     
     cgi_result={'docs_found':myresults,'type':'documents'}
