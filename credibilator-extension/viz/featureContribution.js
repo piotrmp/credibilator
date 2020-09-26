@@ -171,18 +171,18 @@
             .call(xAxis)
             .selectAll("text")
             .style("font-size", "12px")
-            .style("text-anchor", "end")
+            .style("text-anchor", "start")
             //.attr("dx", -1*height)//"-.8em")
             //.attr("dy", "-.55em")
-            .attr("transform", "translate(0," + (height + 2) + ") rotate(-45)" );
+            .attr("transform", "translate(0," + (height + 2) + ") rotate(45)" );
         
         xAxisToAdd.transition().call(xAxis)
         .selectAll("text")
         .style("font-size", "12px")
-        .style("text-anchor", "end")
+        .style("text-anchor", "start")
         //.attr("dx", -1*height)//"-.8em")
         //.attr("dy", "-.55em")
-        .attr("transform", "translate(0," + (height + 2) + ") rotate(-45)" );
+        .attr("transform", "translate(0," + (height + 2) + ") rotate(45)" );
 
         var yAxisToAdd = selectionDOM.selectAll(".y.axis").data([0]);
                                     

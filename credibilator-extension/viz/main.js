@@ -292,9 +292,10 @@ async function handleWordCodes(wordCodes){
     
     docPanelObj = new sentencePanel.sentencePanel(intObj.documentTableDivId, "documents");
     
-    getFeatureList();
+    //getFeatureList();
     
     if (globalContainer.buttonType=="visualStyle"){
+        $('#switchSentenceScore').prop('checked',false);
         mp.switchConfidence();
     }
     
@@ -330,7 +331,10 @@ function endCallback(prediction){
 	let predF=overallScore[1];
 	//document.getElementById("scored").innerHTML = "NONCREDIBLE: "+predF+"<br/>CREDIBLE: "+predR;    
     mp.setSentenceConfidence(predR);
-    mp.setCredibleBar(mp.sentenceConfidence);
+    
+    if (globalContainer.buttonType!="visualStyle"){
+        mp.setCredibleBar(mp.sentenceConfidence);
+    }
 	showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
     
     //This is for the user study in case they are checking the stylometric only

@@ -50,6 +50,8 @@
 //console.log(data)
         mapPanelDocsObj.setHeaderAndMap(data["docs_found"],"#visualizationMapDocs",mapPanelDocsObj)
         
+        getFeatureList();
+        
         //let the interface know that the search results are ready
         //intObj.showElasticsearchResultsOnScreen(data);
     }
