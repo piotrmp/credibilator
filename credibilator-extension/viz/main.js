@@ -151,6 +151,8 @@ let modelName='tfjs-10k-interp-iter';
 var totalNonCredibleDocs = 48031;
 var totalCredibleDocs = 47869;
 
+USERSTUDYMODE = true;
+
 
 function descompContenedor(){
     unpackContainer(messageGlobal)
@@ -318,7 +320,9 @@ function stepCallback(i,I,probs,vecs){
 
 // once everything is finished, visualise
 function endCallback(prediction){
-    $("#switchSentenceScore").removeAttr("disabled");
+    if (!USERSTUDYMODE){
+        $("#switchSentenceScore").removeAttr("disabled");
+    }
     $("#switchMachineView").removeAttr("disabled");
     
     //listOfSentences[listOfSentences.length-1]["class"] = "normal";

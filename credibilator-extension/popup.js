@@ -59,7 +59,7 @@ function score(content){
 	container['stylometricScore']=score;
 	container['stylometricFeatures']=features;
 	container['stylometricInterpretation']=interpretation;
-	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible";
+	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";
 	//document.getElementById("whybutton").addEventListener("click", whyClick);
 	//document.getElementById("whybutton").disabled=false
     
