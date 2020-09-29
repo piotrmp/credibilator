@@ -43,8 +43,11 @@ const simpleCompromise = function(doc) {
 function tokenise_bilstmavg(text){
 	// remove newlines to avoid compromise splitting sentences on them (CoreNLP doesn't)
 	text=text.replace(/\n/g," ");
+	// remove thin spaces
+	text=text.replace(/ /g,"")
 	// hide hyphens
 	text=text.replace(/(\S)-(\S)/g,"$1___$2")
+	//console.log(text)
 	let doc=nlp(text);
 	let simple=simpleCompromise(doc)
 	// recover hyphens
