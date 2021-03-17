@@ -147,6 +147,7 @@ chrome.runtime.onMessage.addListener(
 let MAX_SEQUENCE_LENGTH=120;
 let MAX_DOCUMENT_LENGTH=50;
 let modelName='tfjs-10k-interp-iter';
+//let modelName='random';
 
 var totalNonCredibleDocs = 48031;
 var totalCredibleDocs = 47869;

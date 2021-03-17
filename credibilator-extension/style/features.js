@@ -96,9 +96,19 @@ function generateFeatures(tagged){
 	for (tagNgram in tagNgramsNo){
 		resultFeatures["TAG_"+tagNgram]=tagNgramsNo[tagNgram]/wordsNo;
 	}
+	//resultFeatures=randomise(resultFeatures)
 	return([resultFeatures,interpAll])
 }
 
+function randomise(dict){
+	let keys=Object.keys(dict)
+	let result={}
+	for (key of keys){
+		fakeKey=keys[Math.floor(Math.random() * keys.length)]
+		result[key]=dict[fakeKey]
+	}
+	return result;
+}
 function increment(dict,value){
 	if (!(value in dict)){
 		dict[value]=0
