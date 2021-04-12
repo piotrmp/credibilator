@@ -5,6 +5,8 @@ chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
         });
 
 let container;
+var doc, cred, user;
+var USERSTUDYPOPUP = true;
 
 // having received a message from tab...
 chrome.runtime.onMessage.addListener(
@@ -22,6 +24,21 @@ chrome.runtime.onMessage.addListener(
 			startProcessing()
 		}
 });
+
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
+    // since only one tab should be active and in the current window at once
+    // the return variable should only have one entry
+    var activeTab = tabs[0];
+     
+    doc = activeTab.url.split("/").pop()[0];
+    cred = activeTab.url.split("/").pop()[1];
+    
+    //.*parameterName=([^&|\n|\t\s]+)
+    var regex = /.*user=([^&|\n|\t\s]+)/
+    user = activeTab.url.match(regex)[1];
+
+  });
 
 
 let lemmatizer = new Lemmatizer('./style/javascript-lemmatizer');
@@ -59,9 +76,21 @@ function score(content){
 	container['stylometricScore']=score;
 	container['stylometricFeatures']=features;
 	container['stylometricInterpretation']=interpretation;
-	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";
+    if (USERSTUDYPOPUP){
+        document.getElementById("judgement").innerHTML= "score hidden";
+    }
+    else{
+        document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";
+    }
 	//document.getElementById("whybutton").addEventListener("click", whyClick);
 	//document.getElementById("whybutton").disabled=false
+    
+    //get params
+   
+    
+
+    
+    
     
     
 	document.getElementById("visualWhyButtonStyle").addEventListener("click", visualWhyClickStyle);
@@ -75,6 +104,7 @@ function score(content){
 function whyClick(){
 	// pass on the message to background script
 	container.buttonType = "nonVisual"
+    
 	chrome.runtime.sendMessage(container,function(response) {});
 }
 
@@ -85,6 +115,10 @@ function visualWhyClickStyle(){
     if (window.event.ctrlKey) {
         container.buttonType = "nonVisual"
     }
+    container.doc = doc;
+    container.user = user;
+    container.cred = cred;
+    
     
 	chrome.runtime.sendMessage(container,function(response) {});
 }
@@ -95,5 +129,11 @@ function visualWhyClick(){
     if (window.event.ctrlKey) {
         container.buttonType = "nonVisual"
     }	
+    container.doc = doc;
+    container.user = user;
+    container.cred = cred;
+    if (USERSTUDYPOPUP){
+        container['stylometricScore']=0.5;
+    }
 	chrome.runtime.sendMessage(container,function(response) {});
 }

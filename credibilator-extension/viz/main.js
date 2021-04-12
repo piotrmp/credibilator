@@ -134,25 +134,29 @@ function getRandomInt(max) {
 }
 //------------------------------
 let messageGlobal;
+var USERSTUDYMODE = true;
+var modelName;
+var featuresFilename;
 // wait for the container message and unpack the contents
 chrome.runtime.onMessage.addListener(
 	function listenOnce(message, sender, sendResponse) {
 		chrome.runtime.onMessage.removeListener(listenOnce);
 		messageGlobal = message;
-        unpackContainer(message)
+        unpackContainer(message);
         
+
 });
 
 // Global vars
 let MAX_SEQUENCE_LENGTH=120;
 let MAX_DOCUMENT_LENGTH=50;
-let modelName='tfjs-10k-interp-iter';
-//let modelName='random';
+
+
 
 var totalNonCredibleDocs = 48031;
 var totalCredibleDocs = 47869;
 
-USERSTUDYMODE = true;
+
 
 
 function descompContenedor(){
@@ -163,6 +167,7 @@ function descompContenedor(){
 let globalModel=null
 async function loadModel(url,allcodes,allmasks){
 	try{
+console.log("185")
 		const model = await tf.loadLayersModel(url);
 		console.log('loaded');
 		return(model);
@@ -306,7 +311,12 @@ async function handleWordCodes(wordCodes){
 
 function stepCallback(i,I,probs,vecs){
 //console.log("Scored "+i+" / "+I + ": " + probs[1]);
-    listOfSentences[i]["score"] = probs[1];
+    if (USERSTUDYMODE &&(modelName == 'random')){
+        listOfSentences[i]["score"] = Math.random();
+    }
+    else{
+        listOfSentences[i]["score"] = probs[1];
+    }
     listOfSentences[i]["origVector"] = vecs;
     if (i<I-1){
         listOfSentences[i+1]["class"] = "wavy";
@@ -340,10 +350,13 @@ function endCallback(prediction){
     if (globalContainer.buttonType!="visualStyle"){
         mp.setCredibleBar(mp.sentenceConfidence);
     }
-	showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
+    //This is for the user study in case they are checking the neural only
+    if (globalContainer.buttonType=="visualStyle"){
+        showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
+    }
     
-    //This is for the user study in case they are checking the stylometric only
-    if (globalContainer.buttonType!="visualStyle"){
+    //This is for the user study 
+    if (!USERSTUDYMODE){
         mp.setText(listOfSentences);
     }
 }
@@ -411,6 +424,20 @@ let globalContainer
 async function unpackContainer(container){
 	globalContainer=container;
 	
+     // Global vars
+    modelName ='tfjs-10k-interp-iter';
+    featuresFilename = '../style/data/features.tsv';
+    if (USERSTUDYMODE){
+        if ((["1", "2", "5", "6", "9", "10", "13", "14", "17", "18"].includes(globalContainer.user)) && (["B","D"].includes(globalContainer.doc))){
+            modelName='random';
+            featuresFilename = '../style/data/features-random.tsv';
+        }
+        if ((["3", "4", "7", "8", "11", "12", "15", "16", "19", "20"].includes(globalContainer.user)) && (["A", "C", "E"].includes(globalContainer.doc))){
+            modelName='random';
+            featuresFilename = '../style/data/features-random.tsv';
+        }
+    }
+
     
     var content=globalContainer.textContent;
     var stylometricScore = container.stylometricScore;
@@ -536,7 +563,7 @@ function showLogistic(glmDict,meanDict){
 
 // Style interpretation requested by user
 async function interpretClick(){
-	loadGLMDictMean('../style/data/features.tsv',showInterp);
+	loadGLMDictMean(featuresFilename,showInterp);
     loadHistogramData();
 }
 
