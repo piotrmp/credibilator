@@ -15,7 +15,7 @@
         
         insertedDiv.enter().append("div")
         .attr("class","sentenceTitleDiv")
-        .text(title=="documents"?"Stylistically similar documents": "Similar sentences");
+        .text(title=="documents"?"Stylistically similar documents": "Stylistically similar sentences");
         
         
         insertedDiv.enter().append("div")

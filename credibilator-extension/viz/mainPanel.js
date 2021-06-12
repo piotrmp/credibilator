@@ -269,9 +269,49 @@
     }
     
     mainPanel.prototype.getkNNDocs = function(k,featureValues){
+        function shuffle(array,pronoun) {
+            //used for the user study only
+          var currentIndex = array.length, temporaryValue, randomIndex;
+
+          // While there remain elements to shuffle...
+          while (0 !== currentIndex) {
+            
+
+            
+            currentIndex -= 1;
+            
+            if (featureList[currentIndex].slice(0,3)==pronoun){
+                
+                // Pick a remaining element...
+                randomIndex = Math.floor(Math.random() * (currentIndex+1));
+                /*while (featureList[randomIndex].slice(0,3)!="TAG"){
+                    randomIndex = Math.floor(Math.random() * (currentIndex+1));
+                }*/
+                if (featureList[randomIndex].slice(0,3)==pronoun){
+                
+    
+                    // And swap it with the current element.
+                    temporaryValue = array[currentIndex];
+                    array[currentIndex] = array[randomIndex];
+                    array[randomIndex] = temporaryValue;
+                }
+            }
+          }
+
+          return array;
+        }
         mapPanelDocsObj.resetAllNeighbors();
-        
-        dataToPass = {"n": k , "query": featureValues};
+        if (USERSTUDYMODE &&(modelName == 'random')){
+            featureValues_copy = featureValues.slice();
+console.log(featureValues)
+            shuffle(featureValues_copy,"TAG");
+            shuffle(featureValues_copy,"cat");
+console.log(featureValues_copy)
+            dataToPass = {"n": k , "query": featureValues_copy};
+        }
+        else{
+            dataToPass = {"n": k , "query": featureValues};
+        }
         bec.backendCall(bec.fakelandDataURLkNeighDocs,dataToPass,bec.returnKNeighbors);
     }
     
