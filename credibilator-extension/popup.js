@@ -5,6 +5,8 @@ chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
         });
 
 let container;
+var doc, cred, user;
+var USERSTUDYPOPUP = false;
 
 // having received a message from tab...
 chrome.runtime.onMessage.addListener(
@@ -23,6 +25,21 @@ chrome.runtime.onMessage.addListener(
 		}
 });
 
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+
+    // since only one tab should be active and in the current window at once
+    // the return variable should only have one entry
+    var activeTab = tabs[0];
+     
+    doc = activeTab.url.split("/").pop()[0];
+    cred = activeTab.url.split("/").pop()[1];
+    
+    //.*parameterName=([^&|\n|\t\s]+)
+    var regex = /.*user=([^&|\n|\t\s]+)/
+    user = activeTab.url.match(regex)[1];
+
+  });
+
 
 let lemmatizer = new Lemmatizer('./style/javascript-lemmatizer');
 
@@ -36,7 +53,19 @@ async function startProcessing(){
 
 function handleGIDict(){
 	console.log("Loaded GI dictionary.")
-	loadGLMDict('./style/data/features.tsv',handleGLMDict) 
+    if (USERSTUDYPOPUP){
+        if ((["1", "2", "5", "6", "9", "10", "13", "14", "17", "18"].includes(user)) && (["B","D"].includes(doc))){
+            loadGLMDict('./style/data/features-random2.tsv',handleGLMDict); 
+        }
+        else if ((["3", "4", "7", "8", "11", "12", "15", "16", "19", "20"].includes(user)) && (["A", "C", "E"].includes(doc))){
+            loadGLMDict('./style/data/features-random2.tsv',handleGLMDict); 
+        }
+    }
+    else{
+        loadGLMDict('./style/data/features-true.tsv',handleGLMDict); 
+    }
+    
+	
 }
 
 function handleGLMDict(){
@@ -59,9 +88,21 @@ function score(content){
 	container['stylometricScore']=score;
 	container['stylometricFeatures']=features;
 	container['stylometricInterpretation']=interpretation;
-	document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";
+    if (USERSTUDYPOPUP){
+        document.getElementById("judgement").innerHTML= "[Score hidden. Click style or neural to find out]";
+    }
+    else{
+        document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";
+    }
 	//document.getElementById("whybutton").addEventListener("click", whyClick);
 	//document.getElementById("whybutton").disabled=false
+    
+    //get params
+   
+    
+
+    
+    
     
     
 	document.getElementById("visualWhyButtonStyle").addEventListener("click", visualWhyClickStyle);
@@ -75,6 +116,7 @@ function score(content){
 function whyClick(){
 	// pass on the message to background script
 	container.buttonType = "nonVisual"
+    
 	chrome.runtime.sendMessage(container,function(response) {});
 }
 
@@ -85,6 +127,10 @@ function visualWhyClickStyle(){
     if (window.event.ctrlKey) {
         container.buttonType = "nonVisual"
     }
+    container.doc = doc;
+    container.user = user;
+    container.cred = cred;
+    
     
 	chrome.runtime.sendMessage(container,function(response) {});
 }
@@ -95,5 +141,11 @@ function visualWhyClick(){
     if (window.event.ctrlKey) {
         container.buttonType = "nonVisual"
     }	
+    container.doc = doc;
+    container.user = user;
+    container.cred = cred;
+    if (USERSTUDYPOPUP){
+        container['stylometricScore']=0.5;
+    }
 	chrome.runtime.sendMessage(container,function(response) {});
 }
