@@ -6,7 +6,7 @@ chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
 
 let container;
 var doc, cred, user;
-var USERSTUDYPOPUP = true;
+var USERSTUDYPOPUP = false;
 
 // having received a message from tab...
 chrome.runtime.onMessage.addListener(
@@ -53,7 +53,19 @@ async function startProcessing(){
 
 function handleGIDict(){
 	console.log("Loaded GI dictionary.")
-	loadGLMDict('./style/data/features.tsv',handleGLMDict) 
+    if (USERSTUDYPOPUP){
+        if ((["1", "2", "5", "6", "9", "10", "13", "14", "17", "18"].includes(user)) && (["B","D"].includes(doc))){
+            loadGLMDict('./style/data/features-random2.tsv',handleGLMDict); 
+        }
+        else if ((["3", "4", "7", "8", "11", "12", "15", "16", "19", "20"].includes(user)) && (["A", "C", "E"].includes(doc))){
+            loadGLMDict('./style/data/features-random2.tsv',handleGLMDict); 
+        }
+    }
+    else{
+        loadGLMDict('./style/data/features-true.tsv',handleGLMDict); 
+    }
+    
+	
 }
 
 function handleGLMDict(){
@@ -77,7 +89,7 @@ function score(content){
 	container['stylometricFeatures']=features;
 	container['stylometricInterpretation']=interpretation;
     if (USERSTUDYPOPUP){
-        document.getElementById("judgement").innerHTML= "score hidden";
+        document.getElementById("judgement").innerHTML= "[Score hidden. Click style or neural to find out]";
     }
     else{
         document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";

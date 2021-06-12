@@ -134,7 +134,7 @@ function getRandomInt(max) {
 }
 //------------------------------
 let messageGlobal;
-var USERSTUDYMODE = true;
+var USERSTUDYMODE = false;
 var modelName;
 var featuresFilename;
 // wait for the container message and unpack the contents
@@ -430,11 +430,11 @@ async function unpackContainer(container){
     if (USERSTUDYMODE){
         if ((["1", "2", "5", "6", "9", "10", "13", "14", "17", "18"].includes(globalContainer.user)) && (["B","D"].includes(globalContainer.doc))){
             modelName='random';
-            featuresFilename = '../style/data/features-random.tsv';
+            featuresFilename = '../style/data/features-random2.tsv';
         }
         if ((["3", "4", "7", "8", "11", "12", "15", "16", "19", "20"].includes(globalContainer.user)) && (["A", "C", "E"].includes(globalContainer.doc))){
             modelName='random';
-            featuresFilename = '../style/data/features-random.tsv';
+            featuresFilename = '../style/data/features-random2.tsv';
         }
     }
 
