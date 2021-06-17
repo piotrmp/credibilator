@@ -1,5 +1,5 @@
   {
-    "name": "Credibilator-Vis",
+    "name": "Credibilator",
     "version": "1.0",
     "description": "Credibility assessment tool.",
     "permissions": ["https://cs.uns.edu.ar/","activeTab"],
