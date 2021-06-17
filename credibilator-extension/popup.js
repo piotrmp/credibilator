@@ -46,8 +46,6 @@ let lemmatizer = new Lemmatizer('./style/javascript-lemmatizer');
 
 // initiate the processing
 async function startProcessing(){
-	//lemmatizer = new Lemmatizer('./style/javascript-lemmatizer');
-	//console.log("Loaded lemmatizer.")
 	loadGIDict('./style/data/GI_extended.tsv',handleGIDict) 
 }
 
@@ -94,30 +92,11 @@ function score(content){
     else{
         document.getElementById("judgement").innerHTML= ""+hrScore+"% credible (stylometric)";
     }
-	//document.getElementById("whybutton").addEventListener("click", whyClick);
-	//document.getElementById("whybutton").disabled=false
-    
-    //get params
-   
-    
-
-    
-    
-    
-    
 	document.getElementById("visualWhyButtonStyle").addEventListener("click", visualWhyClickStyle);
 	document.getElementById("visualWhyButtonStyle").disabled=false
     
-    document.getElementById("visualWhyButton").addEventListener("click", visualWhyClick);
+	document.getElementById("visualWhyButton").addEventListener("click", visualWhyClick);
 	document.getElementById("visualWhyButton").disabled=false
-}
-
-// user clicked the button...
-function whyClick(){
-	// pass on the message to background script
-	container.buttonType = "nonVisual"
-    
-	chrome.runtime.sendMessage(container,function(response) {});
 }
 
 // user clicked the button...

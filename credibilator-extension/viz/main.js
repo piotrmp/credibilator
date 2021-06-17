@@ -426,7 +426,7 @@ async function unpackContainer(container){
 	
      // Global vars
     modelName ='tfjs-10k-interp-iter';
-    featuresFilename = '../style/data/features.tsv';
+    featuresFilename = '../style/data/features-true.tsv';
     if (USERSTUDYMODE){
         if ((["1", "2", "5", "6", "9", "10", "13", "14", "17", "18"].includes(globalContainer.user)) && (["B","D"].includes(globalContainer.doc))){
             modelName='random';
