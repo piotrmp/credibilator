@@ -35,7 +35,7 @@ The source code for Credibilator is available in the [credibilator-extension](cr
 * [TensorFlow.js](https://github.com/tensorflow/tfjs) under [Apache License 2.0](https://github.com/tensorflow/tfjs/blob/master/LICENSE),
 * [D3.js](https://github.com/d3/d3) under [ISC license](https://github.com/d3/d3/blob/main/LICENSE).
 
-The extension is released under the [GNU GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) licence.
+The extension source code is released under the [GNU GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) licence.
 
 ### Using the extension
 ...Coming soon!
