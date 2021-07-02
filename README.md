@@ -1,13 +1,14 @@
 # Credibilator
 
-This repository contains resources for the article *[When classification accuracy is not enough: Explaining news credibility assessment](https://XXXXXX.pdf)* published in the *Special Issue on Dis/Misinformation Mining from Social Media* of the [Information Processing & Management](https://www.journals.elsevier.com/information-processing-and-management) journal.
+This repository contains resources for the article *[When classification accuracy is not enough: Explaining news credibility assessment](https://doi.org/10.1016/j.ipm.2021.102653)* published in the *Special Issue on Dis/Misinformation Mining from Social Media* of the [Information Processing & Management](https://www.journals.elsevier.com/information-processing-and-management) journal.
 The research was done within the [HOMADOS](https://homados.ipipan.waw.pl/) project at [Institute of Computer Science](https://ipipan.waw.pl/), Polish Academy of Sciences in cooperation with Institute for Computer Science and Engineering at [CONICET](http://www.conicet.gov.ar/?lan=en) and [Universidad Nacional del Sur](https://www.uns.edu.ar/ingles) in Bahía Blanca, Argentina.
 
 The resources available here are the following:
 * an updated corpus including credible and non-credible (*fake*) news documents,
-* ...
+* code of the Credibilator browser extension for Chrome,
+* MORE COMING SOON!
 
-If you need any more information consult [the paper](https://XXXXXX.pdf) or contact its authors! 
+If you need any more information consult [the paper](https://doi.org/10.1016/j.ipm.2021.102653) or contact its authors! 
 
 ## News Style Corpus v2
 The corpus used in this research contains 95,900 documents from 199 sources. News Style Corpus v2 is based on a previous corpus (see [article](https://ojs.aaai.org//index.php/AAAI/article/view/5386) and [data](https://github.com/piotrmp/fakestyle)), using work of [PolitiFact](https://www.politifact.com/punditfact/article/2017/apr/20/politifacts-guide-fake-news-websites-and-what-they/) and [Pew Research Center](https://www.journalism.org/2014/10/21/political-polarization-media-habits/) for source-level credibility assessments.
@@ -25,3 +26,16 @@ java -jar NewsDownloader-2.0-jar-with-dependencies.jar /path/to/corpusSourcesU.t
 ```
 Mind that downloading the whole corpus takes several hours. In order to limit the load on the *WayBackMachine* infrastructure and retrieve all the pages (some may be temporarily unavailable), you should perform the process in stages. You can select just part of the corpus for download by modifying the address list.
 
+The corpus data are released under the [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
+
+## Credibilator browser extension for Chrome
+The source code for Credibilator is available in the [credibilator-extension](credibilator-extension) folder. It was verified to work with Chromium 91.0. The extension uses several external JS libraries:
+* [compromise](https://github.com/spencermountain/compromise) under [MIT license](LICENSE-MIT),
+* [javascript-lemmatizer](https://github.com/myabu-dev/javascript-lemmatizer) under [MIT license](LICENSE-MIT),
+* [TensorFlow.js](https://github.com/tensorflow/tfjs) under [Apache License 2.0](LICENSE-APACHE),
+* [D3.js](https://github.com/d3/d3) under [ISC license](LICENSE-ISC).
+
+The rest of the source code is released under the [GNU GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) licence.
+
+### Using the extension
+...Coming soon!
