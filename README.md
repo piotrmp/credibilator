@@ -38,4 +38,9 @@ The source code for Credibilator is available in the [credibilator-extension](cr
 The rest of the source code is released under the [GNU GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) licence.
 
 ### Using the extension
-...Coming soon!
+
+In order to try out the extension in Chrome (tested with Chromium 91.0), you need to:
+1. Open the [extensions configuration panel](chrome://extensions/) and turn the *Developer mode* on (upper right corner),
+2. Click *Load unpacked* and select the `credibilator-extension` folder,
+3. The extension should appear on the configuration panel,
+4. You can now use Credibilator. Whenever you want to check the credibility of a currently browsed page, activate Credbiliator from the *Extensions* menu (to the right of the address bar).
