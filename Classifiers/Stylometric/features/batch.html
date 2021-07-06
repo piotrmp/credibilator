@@ -1,0 +1,77 @@
+<html>
+<meta>
+<meta charset="utf-8"/>
+</meta>
+<body>
+<h1>Status</h1>
+<p id="status">
+</p>
+<!-- could use compromise.min later -->
+<script src="compromise.js"></script>
+<script src="tagger.js"></script>
+<script src="extraction.js"></script>
+<script src="gidict.js"></script>
+<script src="doget.js"></script>
+<script src="features.js"></script>
+<script src="javascript-lemmatizer/bower_components/underscore/underscore.js"></script>
+<script src="javascript-lemmatizer/js/lemmatizer.js"></script>
+<script>
+let PREFIX="file:///home/piotr/data/credibilator/tmp/"
+
+// initialize Lemmatizer.
+var lemmatizer = new Lemmatizer('./javascript-lemmatizer');
+
+// initialize GI dict
+function handleGIDict(giD){
+	let maxNumber=Number(window.location.search.substr(1))
+	document.getElementById("status").innerHTML+="Loaded GI dict<br/>";
+	// auto mode, read from file
+	autoMode(maxNumber);
+}
+document.getElementById("status").innerHTML+="Loading GI dict...<br/>";
+loadGIDict('GI/GI_extended.tsv',handleGIDict) 
+
+// Process given text
+function process(content){
+	let verbose=false
+	tagged=tag(content);
+	result=generateFeatures(tagged,verbose)
+	//result=generateFeaturesBoW(tagged,verbose)
+	features=result[0]
+	console.log("\tDOING "+currentNumber+"\t")
+	let feature;
+	for (feature in features){
+		console.log("\t"+feature+"\t"+features[feature]+"\t")
+	}
+	console.log("\tDONE "+currentNumber+"\t")
+}
+
+
+// automatic processing
+let currentNumber=0
+
+function autoProcess(x){
+	return(x);
+}
+function autoCallback(x){
+	document.getElementById("status").innerHTML+="Processing "+currentNumber+"...<br/>";
+	process(x);
+	document.getElementById("status").innerHTML+="Processed "+currentNumber+"<br/>";
+	currentNumber--;
+	if (currentNumber>0){
+		autoMode(currentNumber)
+	}else{
+		document.getElementById("status").innerHTML+="Finished.";
+	}
+}
+function autoMode(maxNumber){
+	currentNumber=maxNumber
+	doGET(PREFIX+"case"+maxNumber+".txt", autoCallback,autoProcess)
+}
+
+
+
+</script>
+
+</body>
+</html>
