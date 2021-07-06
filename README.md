@@ -5,7 +5,8 @@ The research was done within the [HOMADOS](https://homados.ipipan.waw.pl/) proje
 
 The resources available here are the following:
 * an updated corpus including credible and non-credible (*fake*) news documents,
-* code of the Credibilator browser extension for Chrome,
+* source code of the Credibilator browser extension for Chrome,
+* source code and data for training the credibility classifiers used,
 * MORE COMING SOON!
 
 If you need any more information consult [the paper](https://doi.org/10.1016/j.ipm.2021.102653) or contact its authors! 
@@ -44,3 +45,16 @@ In order to try out the extension in Chrome (tested with Chromium 91.0), you nee
 2. Click *Load unpacked* and select the `credibilator-extension` folder,
 3. The extension should appear on the configuration panel,
 4. You can now use Credibilator. Whenever you want to check the credibility of a currently browsed page, activate Credbiliator from the *Extensions* menu (to the right of the address bar).
+
+## Credibility classifiers
+
+### Stylometric
+
+To train a stylometric credibility classifier, you first need to generate features from the training documents. Since the model is going to rely on data available to a browser extension, the features have to be generated in a browser environment as well. The code available in `Classifiers/Stylometric/ChromiumFeatureGenerator.java` executes the javascript code in Chromium and collects the feature values. It uses the following arguments:
+* `chromeUserDir` -- temporary directory, empty at startup,
+* `tempDir` -- temporary directory, empty at startup,
+* `corpusDir` -- directory including the corpus data, e.g. *News Style Corpus* collected as above,
+* `outputDir` -- directory to store the generated features,
+* `batchPath` -- directory with the batch processing javascript code, available in `Classifiers/Stylometric/features`.
+
+To be continued...
