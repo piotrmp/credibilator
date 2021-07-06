@@ -58,3 +58,9 @@ To train a stylometric credibility classifier, you first need to generate featur
 * `batchPath` -- directory with the batch processing javascript code, available in `Classifiers/Stylometric/features`.
 
 The R code in `Classifiers/Stylometric/R/all-credibilator.R` shows how to build a regularised logistic regression model based on the generated features. The resulting model used by the extension could be seen in `credibilator-extension/style/data/features-true.tsv`.
+
+### Neural
+
+The code to convert the corpus to the format used by our neural classifiers is the same as in [previous work](https://github.com/piotrmp/fakestyle/) and could be accessed [here](https://github.com/piotrmp/fakestyle/blob/master/BiLSTMAvg/DataConversion.java). 
+
+The *BiLSTMAvg* model was implemented in *TensorFlow*, using the code available in `Classifiers/Neural`. Subsequently, it was converted to [TensorFlow.js](https://www.tensorflow.org/js) and the result, used for Credibilator, is exported to `credibilator-extension/bilstmavg/data/tfjs-10k-interp-iter`.
