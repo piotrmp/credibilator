@@ -57,4 +57,4 @@ To train a stylometric credibility classifier, you first need to generate featur
 * `outputDir` -- directory to store the generated features,
 * `batchPath` -- directory with the batch processing javascript code, available in `Classifiers/Stylometric/features`.
 
-To be continued...
+The R code in `Classifiers/Stylometric/R/all-credibilator.R` shows how to build a regularised logistic regression model based on the generated features. The resulting model used by the extension could be seen in `credibilator-extension/style/data/features-true.tsv`.
