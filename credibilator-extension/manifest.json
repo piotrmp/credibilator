@@ -8,12 +8,11 @@
       "persistent": false
     },
     "icons": {
-        "48": "icon48.png"
+    	"16": "img/icon16.png",
+        "48": "img/icon48.png",
+        "128": "img/icon128_pad.png"
     },
     "browser_action": {
-      "default_icon": {
-        "48": "icon48.png"
-        },
       "default_popup": "popup.html"
     },
     "content_security_policy": "script-src 'self' https://d3js.org https://stackpath.bootstrapcdn.com https://unpkg.com https://ajax.googleapis.com/ https://cs.uns.edu.ar; object-src 'self'",
