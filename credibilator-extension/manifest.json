@@ -1,7 +1,7 @@
   {
     "name": "Credibilator",
     "version": "1.0",
-    "description": "Credibilator is an AI tool that analyses a given webpage and assesses its credibility based on similarity to known trustworthy or fake news sources. Credibilator was developed within the HOMADOS research project and more information could be found in the publication (https://doi.org/10.1016/j.ipm.2021.102653) and data repository (https://github.com/piotrmp/credibilator). Note that Credibilator is provided for demonstration purposes, only works with text in English and will not return correct results for every page. Any automatic tool is less accurate than humans in spotting unreliable content, so only your careful consideration can stop the spread of fake news.",
+    "description": "Analyses pages to assess (and explain) their credibility. Uses AI to learn from previously seen trustworthy or fake news sources.",
     "permissions": ["https://cs.uns.edu.ar/","activeTab"],
     "background": {
       "scripts": ["background.js"],
@@ -16,5 +16,6 @@
       "default_popup": "popup.html"
     },
     "content_security_policy": "script-src 'self' https://d3js.org https://stackpath.bootstrapcdn.com https://unpkg.com https://ajax.googleapis.com/ https://cs.uns.edu.ar; object-src 'self'",
-    "manifest_version": 2
+    "manifest_version": 2,
+    "homepage_url": "https://github.com/piotrmp/credibilator"
     }
