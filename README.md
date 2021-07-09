@@ -5,9 +5,9 @@ The research was done within the [HOMADOS](https://homados.ipipan.waw.pl/) proje
 
 The resources available here are the following:
 * an updated corpus including credible and non-credible (*fake*) news documents,
-* source code of the Credibilator browser extension for Chrome,
+* the Credibilator browser extension for Chrome,
 * source code and data for training the credibility classifiers used,
-* MORE COMING SOON!
+* server-side source code (IN PROGRESS).
 
 If you need any more information consult [the paper](https://doi.org/10.1016/j.ipm.2021.102653) or contact its authors! 
 
@@ -30,13 +30,15 @@ Mind that downloading the whole corpus takes several hours. In order to limit th
 The corpus data are released under the [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
 
 ## Credibilator browser extension for Chrome
+
+### Source code
 The source code for Credibilator is available in the [credibilator-extension](credibilator-extension) folder. It was verified to work with Chromium 91.0. The extension uses several external JS libraries:
 * [compromise](https://github.com/spencermountain/compromise) under [MIT license](LICENSE-MIT),
 * [javascript-lemmatizer](https://github.com/myabu-dev/javascript-lemmatizer) under [MIT license](LICENSE-MIT),
 * [TensorFlow.js](https://github.com/tensorflow/tfjs) under [Apache License 2.0](LICENSE-APACHE),
 * [D3.js](https://github.com/d3/d3) under [ISC license](LICENSE-ISC).
 
-The rest of the source code is released under the [GNU GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) licence.
+The source code is released under the [GNU GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.html) licence.
 
 ### Using the extension
 
@@ -45,6 +47,10 @@ In order to try out the extension in Chrome (tested with Chromium 91.0), you nee
 2. Click *Load unpacked* and select the `credibilator-extension` folder,
 3. The extension should appear on the configuration panel,
 4. You can now use Credibilator. Whenever you want to check the credibility of a currently browsed page, activate Credbiliator from the *Extensions* menu (to the right of the address bar).
+
+### Video manual
+
+`Credibilator_mp4` contains a video presenting the most important features of the extension in action.
 
 ## Credibility classifiers
 
@@ -64,3 +70,7 @@ The R code in `Classifiers/Stylometric/R/all-credibilator.R` shows how to build 
 The code to convert the corpus to the format used by our neural classifiers is the same as in [previous work](https://github.com/piotrmp/fakestyle/) and could be accessed [here](https://github.com/piotrmp/fakestyle/blob/master/BiLSTMAvg/DataConversion.java). 
 
 The *BiLSTMAvg* model was implemented in *TensorFlow*, using the code available in `Classifiers/Neural`. Subsequently, it was converted to [TensorFlow.js](https://www.tensorflow.org/js) and the result, used for Credibilator, is exported to `credibilator-extension/bilstmavg/data/tfjs-10k-interp-iter`.
+
+## Server-side
+
+IN PROGRESS
