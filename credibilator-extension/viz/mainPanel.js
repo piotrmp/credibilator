@@ -221,7 +221,7 @@
             $(this).css({"outline": "1px solid blue", "padding" : ".2em .0em"});
             
             //show tooltip
-            if (!((thisObject.currentConfidence=="document")&&(d.reason.length == 0))){
+            if (!((thisObject.currentConfidence=="document")&&((!("reason" in d))||d.reason.length == 0))){
                 var div = mp.divTooltip;
                 
                 div.transition()

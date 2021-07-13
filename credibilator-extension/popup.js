@@ -18,8 +18,10 @@ chrome.runtime.onMessage.addListener(
 		let wordNumber=container.textContent.split(/\s+/).length
 		if (charNumber<500){
 			document.getElementById("judgement").innerHTML= " too short for credibility assessment.";
+			document.getElementById("whytext").innerHTML= ""
 		}else if ((wordNumber/lineNumber)<15){
 			document.getElementById("judgement").innerHTML=" too fragmented for credibility assessment.";
+			document.getElementById("whytext").innerHTML= ""
 		}else{
 			startProcessing()
 		}
@@ -36,7 +38,9 @@ chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     
     //.*parameterName=([^&|\n|\t\s]+)
     var regex = /.*user=([^&|\n|\t\s]+)/
-    user = activeTab.url.match(regex)[1];
+    if (activeTab.url.match(regex)!=null){
+    	user = activeTab.url.match(regex)[1];
+    }
 
   });
 

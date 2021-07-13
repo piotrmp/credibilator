@@ -382,7 +382,6 @@ function showInterpretableNeural(tokenised,wordCodes,prediction){
 	let sentenceCoords=Array.from(prediction[2]);
 	let resultHTML="";
 	let i=0;
-    console.log(tokenised);
 	for (let sentence of tokenised){
 		let j=0
 		sentenceHTML="";
