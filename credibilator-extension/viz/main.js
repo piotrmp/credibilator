@@ -128,6 +128,7 @@
     };
 })(window)
 
+
 //user defined functions
 function getRandomInt(max) {
           return Math.floor(Math.random() * Math.floor(max));
@@ -253,7 +254,6 @@ async function useModelIter(model,allcodes,allmasks,stepCallback,endCallback){
 		}
 	})();
 }
-
 
 let globalWordCodes;
 async function handleWordCodes(wordCodes){
@@ -915,4 +915,5 @@ function showHighlightsSequence(glmDict,targetFeature){
 	}
     return listOfWordsSequence;
 }
+
 
