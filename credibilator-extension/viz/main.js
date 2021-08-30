@@ -150,7 +150,7 @@ chrome.runtime.onMessage.addListener(
 
 // Global vars
 let MAX_SEQUENCE_LENGTH=120;
-let MAX_DOCUMENT_LENGTH=50;
+let MAX_DOCUMENT_LENGTH=100;
 
 
 
@@ -333,6 +333,7 @@ function stepCallback(i,I,probs,vecs){
 function endCallback(prediction){
     if (!USERSTUDYMODE){
         $("#switchSentenceScore").removeAttr("disabled");
+        d3.select("#mainSwitch").attr("title","Change credibility method");
     }
     $("#switchMachineView").removeAttr("disabled");
     
@@ -351,9 +352,9 @@ function endCallback(prediction){
         mp.setCredibleBar(mp.sentenceConfidence);
     }
     //This is for the user study in case they are checking the neural only
-    if (globalContainer.buttonType=="visualStyle"){
+    //if ((USERSTUDYMODE) &&(globalContainer.buttonType=="visualStyle")){
         showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
-    }
+    //}
     
     //This is for the user study 
     if (!USERSTUDYMODE){

@@ -200,6 +200,9 @@
                 return c;
             }
             else{
+                if (d.score==undefined){
+                    d.score=0;
+                }
                 let c = d3.color(thisObject.scaleCredibleTextHighlightColor(Math.abs(d.score)));
                 c.opacity = 0.8;
                 return c;
