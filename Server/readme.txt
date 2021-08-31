@@ -1,4 +1,7 @@
-Index data for ANN
+These are the steps for setting up the backend fr Credibilator. It consists of three parts: 1. Index data for ANN, 2. Storage on mongoDB, 3. Start Flask server, 4. Front-end update:
+
+=============================================================
+1. Index data for ANN
 
 Run indexData.py, where
 
@@ -10,10 +13,10 @@ Run indexData.py, where
 - pickleFile = "./engine.p"
 - pickleFileDocs = "./engineDocs.p"
 
-------------------------------------
-Storage on mongoDB -
+=============================================================
+2. Storage on mongoDB
 
-1- Have mongo running (script assumes port 27017)
+1- Start mongo (script assumes port 27017)
 
 Run lowDimStoringSentencesMongoDB.py, where: 
 
@@ -25,8 +28,9 @@ Run lowDimStoringDocumentsMongoDB.py, where:
 - pathDocumentMetadata = '../data/metadata.tsv' contains the source credibility (label), domain, id, title, URL and archived URL
 - pathDocument2D = '../data/styleU50pSfixC.ssv'  low dimensional representation of documents (x y label)
 
-===============================
-Start server
+=============================================================
+3. Start Flask server:
+
 1)Create a screen: screen -S backend
 2)Activate the environment: conda activate credibilatorP3 (for details on the environment check credibilatorenv.txt)
 3)navigate to the server folder: cd ./credibilator/Server
@@ -37,9 +41,9 @@ flask run --host=0.0.0.0 --port=5001
 
 The packages of the environment credibilatorP3 can be found in credibilatorenv.txt
 
-================================
+=============================================================
+4. Front end update:
 
-Front end:
 Adjust backendConnector.js the lines:
 this.hostName = 'https://cs.uns.edu.ar/';
 wsgiSuffix = 'credibilator-wsgi';
