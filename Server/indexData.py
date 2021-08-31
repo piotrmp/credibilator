@@ -8,9 +8,11 @@ from nearpy.hashes import RandomBinaryProjections
 import pickle
 from pathlib import Path
 
+pathSentences2D = '../data/redU500k50p.ssv'
+pathSentencesOrig = '../data/origdimU.ssv'
+pathDocumentFeatures = '../data/impx.tsv'
 
-
-
+#output for hashes (sentences and documents respectively
 pickleFile = "./engine.p"
 pickleFileDocs = "./engineDocs.p"
 
@@ -27,14 +29,14 @@ def indexEverything():
     engine = Engine(dimension, lshashes=[rbp])
 
     #extract ids from the 500k sentences
-    with open('../data/redU500k50p.ssv','r') as redFile:
+    with open(pathSentences2D,'r') as redFile:
         count = 0
         index = []
         for line in redFile:
             index.append(int(float(line.rstrip().split(' ')[0])))
 
     # Index vectors (set their data to a unique string)
-    with open('../data/origdimU.ssv','r') as origDim:
+    with open(pathSentencesOrig,'r') as origDim:
         count = 0 
         added = 0
         for line in origDim:
@@ -67,7 +69,7 @@ def indexEverythingDocs():
     
 
     # Index vectors (set their data to a unique string)
-    with open('../data/impx.tsv','r') as origDim:
+    with open(pathDocumentFeatures,'r') as origDim:
         count = 0 
         
         for line in origDim:
