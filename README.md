@@ -73,4 +73,7 @@ The *BiLSTMAvg* model was implemented in *TensorFlow*, using the code available 
 
 ## Server-side
 
-IN PROGRESS
+If you want to set up your own backend different to the one currently used by the extension, FLASK, mongoDB and nearpy is needed. These are the steps for setting up the backend for Credibilator yourself. It consists of three parts: 1. Index data for ANN, 2. Storage on mongoDB, 3. Start Flask server, 4. Front-end update.
+
+Check `Server/readme.txt` for a detailed explanation. 
+
