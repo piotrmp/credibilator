@@ -7,7 +7,7 @@ The resources available here are the following:
 * an updated corpus including credible and non-credible (*fake*) news documents,
 * the Credibilator browser extension for Chrome,
 * source code and data for training the credibility classifiers used,
-* server-side source code (IN PROGRESS).
+* server-side source code.
 
 If you need any more information consult [the paper](https://doi.org/10.1016/j.ipm.2021.102653) or contact its authors! 
 
