@@ -356,10 +356,7 @@ function endCallback(prediction){
         showInterpretableNeural(globalTokenised,globalWordCodes,prediction);
     //}
     
-    //This is for the user study 
-    if (!USERSTUDYMODE){
-        mp.setText(listOfSentences);
-    }
+    
 }
 
 
