@@ -5,9 +5,9 @@ The research was done within the [HOMADOS](https://homados.ipipan.waw.pl/) proje
 
 The resources available here are the following:
 * an updated corpus including credible and non-credible (*fake*) news documents,
-* the Credibilator browser extension for Chrome,
+* the Credibilator browser extension for Chrome (install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/credibilator/lalomhplonipaikfmhaebdailpomkblo)),
 * source code and data for training the credibility classifiers used,
-* server-side source code (IN PROGRESS).
+* server-side source code.
 
 If you need any more information consult [the paper](https://doi.org/10.1016/j.ipm.2021.102653) or contact its authors! 
 
@@ -42,7 +42,9 @@ The source code is released under the [GNU GPL 3.0](https://www.gnu.org/licenses
 
 ### Using the extension
 
-In order to try out the extension in Chrome (tested with Chromium 91.0), you need to:
+The easiest way to use the extension is to install it from the [Chrome Web Store](https://chrome.google.com/webstore/detail/credibilator/lalomhplonipaikfmhaebdailpomkblo).
+
+If you want to load the extension from local files (tested with Chromium 91.0), you need to:
 1. Open the [extensions configuration panel](chrome://extensions/) and turn the *Developer mode* on (upper right corner),
 2. Click *Load unpacked* and select the `credibilator-extension` folder,
 3. The extension should appear on the configuration panel,
@@ -73,4 +75,7 @@ The *BiLSTMAvg* model was implemented in *TensorFlow*, using the code available 
 
 ## Server-side
 
-IN PROGRESS
+If you want to set up your own backend different to the one currently used by the extension, FLASK, mongoDB and nearpy is needed. These are the steps for setting up the backend for Credibilator yourself. It consists of three parts: 1. Index data for ANN, 2. Storage on mongoDB, 3. Start Flask server, 4. Front-end update.
+
+Check `Server/readme.txt` for a detailed explanation. 
+

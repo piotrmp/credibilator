@@ -1,6 +1,6 @@
   {
     "name": "Credibilator",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Analyses pages to assess (and explain) their credibility. Uses AI to learn from previously seen trustworthy or fake news sources.",
     "permissions": [
 	"https://cs.uns.edu.ar/",
