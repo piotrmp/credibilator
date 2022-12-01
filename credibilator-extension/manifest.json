@@ -1,24 +1,28 @@
   {
     "name": "Credibilator",
-    "version": "1.0.2",
+    "version": "1.1",
     "description": "Analyses pages to assess (and explain) their credibility. Uses AI to learn from previously seen trustworthy or fake news sources.",
     "permissions": [
-	"https://cs.uns.edu.ar/",
-	"activeTab",
-	"tabs"],
+      "scripting",
+	     "activeTab",
+	     "tabs"],
+    "host_permissions": [
+      "https://cs.uns.edu.ar/"
+    ],
     "background": {
-      "page": "background.html",
-      "persistent": false
+      "service_worker": "background.js"
     },
     "icons": {
     	"16": "img/icon16.png",
         "48": "img/icon48.png",
         "128": "img/icon128_pad.png"
     },
-    "browser_action": {
+    "action": {
       "default_popup": "popup.html"
     },
-    "content_security_policy": "script-src 'self' https://cs.uns.edu.ar; object-src 'self'",
-    "manifest_version": 2,
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'"
+    },
+    "manifest_version": 3,
     "homepage_url": "https://github.com/piotrmp/credibilator"
     }

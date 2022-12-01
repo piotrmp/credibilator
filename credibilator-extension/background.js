@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             chrome.tabs.create({ url: urlA }, function(tab) {
                 // wait for the execution of its script
 		console.log("Background: preparing environment...")
-                chrome.tabs.executeScript(tab.id, {file:"./viz/main.js"}, function() {
+                chrome.scripting.executeScript({target: {tabId: tab.id}, files: ["./viz/main.js"]}, function() {
                     // before sending the message with content
 			if (chrome.runtime.lastError){
 				if (chrome.runtime.lastError.message.startsWith("Cannot access contents of url \"chrome-extension://")){

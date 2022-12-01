@@ -1,8 +1,18 @@
 'use strict';
 
-chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
-	chrome.tabs.executeScript({file: 'contentScript.js'})
+var query = { active: true, currentWindow: true };
+function callbackTabID(tabs) {
+  var id = tabs[0].id; // there will be only one in this array
+  chrome.scripting.executeScript({target: {tabId: id}, files: ['general/unfluffPacked.js']},function(){
+	chrome.scripting.executeScript({target: {tabId: id}, files: ['contentScript.js']})
         });
+}
+chrome.tabs.query(query, callbackTabID);
+
+
+//chrome.tabs.executeScript({file: 'general/unfluffPacked.js'},function(){
+//	chrome.tabs.executeScript({file: 'contentScript.js'})
+//        });
 
 let container;
 var doc, cred, user;
